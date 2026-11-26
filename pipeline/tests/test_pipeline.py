@@ -73,17 +73,21 @@ def test_media_urls():
     assert media.commons_url("NP_India_burning1_(6314801805).jpg").endswith("NP_India_burning1_%286314801805%29.jpg")
 
 
-def test_wind_parse_and_rose():
-    from pipeline import wind
-    sample = {"header": {"fill_value": -999}, "properties": {"parameter": {
-        "WD50M": {"2021101500": 315.0, "2021101501": 300.0, "2021101502": 5.0, "2021101503": 350.0, "2021101504": -999},
-        "WS50M": {"2021101500": 3.0, "2021101501": 2.0, "2021101502": 0.2, "2021101503": 1.5, "2021101504": 4.0}}}}
+def test_wind_field_parse_and_assemble():
     import json
-    pairs = wind.parse(json.dumps(sample))
-    assert len(pairs) == 4                         # the fill value is dropped
-    r = wind.rose(pairs)
-    shares = {s["from_deg"]: s["share"] for s in r["sectors"]}
-    assert r["calm_share"] == 0.25                 # 0.2 m/s is calm
-    assert shares[315.0] == 0.25 and shares[292.5] == 0.25 and shares[0.0] == 0.25   # 350 degrees falls in the north sector
-    assert abs(sum(shares.values()) + r["calm_share"] - 1) < 1e-9
-    assert "WD50M" in wind.power_url(2021) and "start=20211015" in wind.power_url(2021) and "end=20211130" in wind.power_url(2021)
+    from pipeline import wind, config
+    def resp(param, vals):
+        return json.dumps({"header": {"fill_value": -999}, "type": "FeatureCollection", "features": [
+            {"type": "Feature", "geometry": {"type": "Point", "coordinates": [75.0, 30.0, 250]},
+             "properties": {"parameter": {param: {"20211015": vals[0], "20211016": vals[1]}}}},
+            {"type": "Feature", "geometry": {"type": "Point", "coordinates": [75.625, 30.0, 240]},
+             "properties": {"parameter": {param: {"20211015": -999, "20211016": vals[2]}}}}]})
+    acc = {p: {} for p in config.WIND_PARAMS}
+    for p, vals in (("U50M", [1.0, 3.0, 2.0]), ("V50M", [-1.0, -3.0, -4.0])):
+        for k, (s_, n) in wind.parse_regional(resp(p, vals), p).items():
+            acc[p][k] = [s_, n]
+    lats, lons, grid = wind.assemble(acc)
+    assert lats == [30.0] and lons == [75.0, 75.625]
+    assert grid["U50M"][0] == [2.0, 2.0] and grid["V50M"][0] == [-2.0, -4.0]   # the fill value is dropped
+    url = wind.regional_url("U50M", 2021, (71.5, 26.5, 76.0, 30.5))
+    assert "regional" in url and "start=20211015" in url and "end=20211130" in url and "latitude-min=26.5" in url

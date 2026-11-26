@@ -68,11 +68,12 @@ window.CFC_DATA = {
     { name: "Chandigarh", lon: 76.7794, lat: 30.7333 },
     { name: "Lahore", lon: 74.3587, lat: 31.5204 },
     { name: "Ludhiana", lon: 75.8573, lat: 30.901 },
+    { name: "Jalandhar", lon: 75.5762, lat: 31.326 },
     { name: "Amritsar", lon: 74.8723, lat: 31.634 },
     { name: "Bathinda", lon: 74.9455, lat: 30.211 },
     { name: "Patiala", lon: 76.3869, lat: 30.3398 },
     { name: "Sangrur", lon: 75.8421, lat: 30.2458 }
   ],
-  // Wind: the point the pipeline queries; without data the map shows the north-west octant
-  wind: { lon: 75.8573, lat: 30.901, place: "Ludhiana" }
+  // Field view: the area of the 30 m satellite image (same bounds as FIELD_SCENE in pipeline/config.py)
+  field: { bounds: [75.55, 30.05, 76.15, 30.45] }
 };

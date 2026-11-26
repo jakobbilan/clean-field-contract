@@ -5,6 +5,7 @@
   if (!D || !G || !d3 || !topojson) return;
 
   var root = document.documentElement;
+  root.classList.add('js');
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var narrowMQ = window.matchMedia('(max-width: 899px)');
   var C = Math.cos(30 * Math.PI / 180);           // projection: x = lon * cos(30 deg), y = -lat
@@ -21,6 +22,7 @@
   function roundAbout(v) { return v >= 1000 ? Math.round(v / 100) * 100 : Math.round(v / 10) * 10; }
 
   /* ------------------------------------------------------------ geometry */
+  var IN = window.CFC_INDIA || null;
   var districtsObj = G.objects.districts, statesObj = G.objects.states;
   var F = {
     districts: topojson.feature(G, districtsObj).features,
@@ -32,80 +34,86 @@
   };
   var stateNamed = function (n) { return F.states.filter(function (f) { return f.properties.name === n; })[0]; };
   var punjab = stateNamed('PUNJAB');
-  var neighbours = { type: 'FeatureCollection', features: ['HARYANA', 'DELHI', 'CHANDIGARH'].map(stateNamed).filter(Boolean) };
   var stateMesh = topojson.mesh(G, statesObj, function (a, b) { return a !== b; });
   var districtMesh = topojson.mesh(G, districtsObj, function (a, b) { return a !== b; });
   var sixFeatures = { type: 'FeatureCollection', features: F.districts.filter(function (f) { return f.properties.six; }) };
   var sixOutline = topojson.mesh(G, districtsObj, function (a, b) {
     return (a === b && a.properties.six) || (a !== b && a.properties.six !== b.properties.six);
   });
-  var toWorld = d3.geoTransform({ point: function (x, y) { this.stream.point(x * C, -y); } });
-  var wpath = d3.geoPath(toWorld);
-  if (wpath.digits) wpath.digits(4);
+  var india = IN ? IN.outline : null, indiaStates = IN ? IN.states : null;
+  var riversFC = { type: 'FeatureCollection', features: F.rivers };
+  var FIELD = (D.field && D.field.bounds) || [75.55, 30.05, 76.15, 30.45];
+  var put = function (k, v) { document.querySelectorAll('[data-live="' + k + '"]').forEach(function (el) { el.textContent = v; }); };
 
-  /* ------------------------------------------------------------ stage */
+  /* ------------------------------------------------------------ stage: everything is drawn in screen pixels, every frame */
   var stageEl = document.getElementById('stage');
   var mapOK = !!stageEl;
   var W = 0, H = 0, dpr = 1, cam = null, flight = null, active = -1, focus = null;
-  var svgBase, gWorld, gSat, gWindWorld, layer = {}, canvas, ctx, svgTop, gGrat, gLabels, gFocus, gScale, hud, credit, photo;
-  var assets = { sat: [], photo: null };
+  var svgBase, gBase, gSatImgs, dimRect, gOver, gLines, gWind, canvas, ctx, svgTop, gGrat, gLabels, gFocus, gScale, gInset, hud, credit, photo;
+  var layers = {};
+  var assets = { sat: [], photo: null, field: null };
   var fires = { A: null, B: null, meta: null };
-  var wind = null;
+  var wind = { lines: [], measured: false, paths: null, heads: null };
   var fireState = { key: null, dayMax: SEASON_DAYS - 1 };
+  var stepEls = Array.prototype.slice.call(document.querySelectorAll('.step'));
+
+  var screenT = d3.geoTransform({ point: function (lon, lat) { this.stream.point(cam.tx + cam.k * lon * C, cam.ty - cam.k * lat); } });
+  var spath = d3.geoPath(screenT);
+  if (spath.digits) spath.digits(1);
+  var P = function (lon, lat) { return [cam.tx + cam.k * lon * C, cam.ty - cam.k * lat]; };
 
   var BOUNDS = {
-    wide: [[64.5, 7.0], [95.5, 36.4]],
+    wide: [[66.0, 6.5], [99.0, 37.6]],
     north: [[68.5, 22.5], [89.5, 35.6]],
     plain: [[72.3, 27.4], [79.7, 33.1]],
     punjab: [[73.8, 29.5], [77.0, 32.55]],
     six: [[74.75, 29.8], [76.85, 31.2]]
   };
+  var WIDE_LINES = ['indiaStates', 'indiaLine'];
   var STEPS = [
-    { view: 'wide', sat: true, layers: ['land', 'punjabFill'], labels: 'hero' },
-    { view: 'north', sat: true, layers: ['land', 'punjabFill'], labels: 'hero' },
-    { view: 'plain', sat: true, layers: ['land', 'states', 'rivers', 'punjabLine'], labels: 'plain', wind: true },
-    { view: 'plain', sat: true, layers: ['land', 'states', 'rivers', 'punjabFill'], labels: 'plain' },
-    { view: 'punjab', layers: ['land', 'pbBase', 'states', 'rivers', 'districts', 'punjabLine'], labels: 'cities', fires: 'A', scrub: true, grat: 1 },
-    { view: 'punjab', layers: ['land', 'pbBase', 'states', 'rivers', 'districts', 'punjabLine'], labels: 'cities', fires: 'B', scrub: true, grat: 1 },
-    { view: 'six', layers: ['land', 'pbBase', 'states', 'districts', 'six', 'punjabLine'], labels: 'six', fires: 'B', grat: 1 },
-    { view: 'field', layers: ['land', 'pbBase', 'districts'], labels: 'none', fires: 'B', grat: 0.1, focus: true },
-    { view: 'field', layers: ['land', 'pbBase', 'districts'], labels: 'none', fires: 'B', grat: 0.1, focus: true, photo: true }
+    { view: 'wide', sat: 'viirs', layers: ['land', 'indiaFill', 'punjabFill'].concat(WIDE_LINES), labels: 'wide' },
+    { view: 'north', sat: 'viirs', layers: ['land', 'indiaFill', 'punjabFill', 'rivers'].concat(WIDE_LINES), labels: 'north' },
+    { view: 'plain', sat: 'viirs', layers: ['land', 'indiaFill', 'rivers', 'punjabLine'].concat(WIDE_LINES), labels: 'plain', wind: true },
+    { view: 'plain', sat: 'viirs', layers: ['land', 'indiaFill', 'rivers', 'punjabFill', 'punjabLine'].concat(WIDE_LINES), labels: 'plain' },
+    { view: 'punjab', sat: 'modis', dim: true, layers: ['land', 'indiaFill', 'pbBase', 'rivers', 'states', 'districts', 'punjabLine', 'indiaLine'], labels: 'punjab', fires: 'A', scrub: true, grat: 1 },
+    { view: 'punjab', sat: 'modis', dim: true, layers: ['land', 'indiaFill', 'pbBase', 'rivers', 'states', 'districts', 'punjabLine', 'indiaLine'], labels: 'punjab', fires: 'B', scrub: true, grat: 1 },
+    { view: 'six', sat: 'modis', dim: true, layers: ['land', 'indiaFill', 'pbBase', 'six', 'states', 'districts', 'sixLine', 'punjabLine', 'indiaLine'], labels: 'six', fires: 'B', grat: 0.5, inset: true },
+    { view: 'field', sat: 'hls', layers: ['land', 'pbBase', 'districts'], labels: 'none', fires: 'B', grat: 0.1, focus: true, inset: true },
+    { view: 'field', sat: 'hls', layers: ['land', 'pbBase', 'districts'], labels: 'none', fires: 'B', grat: 0.1, focus: true, inset: true, photo: true }
   ];
+  var LAYER_DEFS = [
+    ['land', F.land, 'base', 'm-land'],
+    ['indiaFill', india, 'base', 'm-india'],
+    ['pbBase', punjab, 'base', 'm-pbbase'],
+    ['punjabFill', punjab, 'over', 'm-pbfill'],
+    ['six', sixFeatures, 'over', 'm-six'],
+    ['rivers', riversFC, 'lines', 'm-rivers'],
+    ['indiaStates', indiaStates, 'lines', 'm-instates'],
+    ['states', stateMesh, 'lines', 'm-states'],
+    ['districts', districtMesh, 'lines', 'm-districts'],
+    ['sixLine', sixOutline, 'lines', 'm-sixline'],
+    ['punjabLine', punjab, 'lines', 'm-pbline'],
+    ['indiaLine', india, 'lines', 'm-inline']
+  ];
+  var COVERED_BY_SAT = { land: 1, indiaFill: 1, pbBase: 1 };
 
   function buildStage() {
-    svgBase = d3.select(stageEl).append('svg').attr('class', 'base');
-    var defs = svgBase.append('defs');
-    gWorld = svgBase.append('g');
-    var add = function (name, datum, style) {
-      var p = gWorld.append('path').datum(datum).attr('d', wpath)
-        .style('vector-effect', 'non-scaling-stroke').style('fill-rule', 'evenodd')
-        .style('transition', reduceMotion ? 'none' : 'opacity 600ms ease').style('opacity', 0);
-      Object.keys(style).forEach(function (k) { p.style(k, style[k]); });
-      layer[name] = p;
-    };
-    add('land', F.land, { fill: 'var(--land)', stroke: 'var(--land-line)', 'stroke-width': '0.6px' });
-    gSat = gWorld.append('g').attr('class', 'sat').style('opacity', 0).style('transition', reduceMotion ? 'none' : 'opacity 700ms ease');
-    add('pbBase', punjab, { fill: 'var(--clear)', stroke: 'none' });
-    add('punjabFill', punjab, { fill: 'var(--punjab)', 'fill-opacity': 0.85, stroke: 'none' });
-    add('six', sixFeatures, { fill: 'var(--ember-soft)', stroke: 'none' });
-    add('rivers', { type: 'FeatureCollection', features: F.rivers }, { fill: 'none', stroke: 'var(--river)', 'stroke-width': '1px' });
-    add('states', stateMesh, { fill: 'none', stroke: 'var(--land-line)', 'stroke-width': '0.9px', 'stroke-dasharray': '3 2' });
-    add('neighbours', neighbours, { fill: 'none', stroke: 'var(--ink-2)', 'stroke-width': '0.9px' });
-    add('districts', districtMesh, { fill: 'none', stroke: 'var(--ink-3)', 'stroke-width': '0.6px' });
-    add('sixLine', sixOutline, { fill: 'none', stroke: 'var(--ember)', 'stroke-width': '1.6px' });
-    add('punjabLine', punjab, { fill: 'none', stroke: 'var(--ink)', 'stroke-width': '1.3px' });
-    // wind: radial fade for the sector, drawn in map coordinates
-    var w = D.wind, cx = w.lon * C, cy = -w.lat;
-    var grad = defs.append('radialGradient').attr('id', 'windfade').attr('gradientUnits', 'userSpaceOnUse')
-      .attr('cx', cx).attr('cy', cy).attr('r', 4.2);
-    grad.append('stop').attr('offset', '0').style('stop-color', 'var(--smoke)').style('stop-opacity', 0.55);
-    grad.append('stop').attr('offset', '1').style('stop-color', 'var(--smoke)').style('stop-opacity', 0.04);
-    gWindWorld = gWorld.append('g').style('opacity', 0).style('transition', reduceMotion ? 'none' : 'opacity 700ms ease');
-    drawWindShape();
+    svgBase = d3.select(stageEl).append('svg').attr('class', 'map');
+    gBase = svgBase.append('g');
+    var gSat = svgBase.append('g');
+    gSatImgs = gSat.append('g');
+    dimRect = gSat.append('rect').attr('class', 'm-dim').attr('x', 0).attr('y', 0).style('opacity', 0);
+    gOver = svgBase.append('g');
+    gLines = svgBase.append('g');
+    gWind = svgBase.append('g').attr('class', 'm-wind').style('opacity', 0);
+    var groups = { base: gBase, over: gOver, lines: gLines };
+    LAYER_DEFS.forEach(function (d) {
+      if (!d[1]) return;
+      layers[d[0]] = { el: groups[d[2]].append('path').attr('class', d[3]).style('opacity', 0), datum: d[1], target: 0, vis: false };
+    });
 
     canvas = document.createElement('canvas');
-    canvas.style.transition = reduceMotion ? 'none' : 'opacity 500ms ease';
-    canvas.style.opacity = 0;
+    canvas.className = 'fires';
     stageEl.appendChild(canvas);
     ctx = canvas.getContext('2d');
 
@@ -114,6 +122,7 @@
     gLabels = svgTop.append('g');
     gFocus = svgTop.append('g');
     gScale = svgTop.append('g');
+    gInset = svgTop.append('g').attr('class', 'inset');
 
     photo = document.createElement('img');
     photo.className = 'photo';
@@ -124,46 +133,21 @@
     resizeStage();
   }
 
-  // Bearing in degrees clockwise from north, distance in degrees of latitude: offset in map units
-  function offset(bearing, dist) {
-    var b = bearing * Math.PI / 180;
-    return [dist * Math.sin(b), -dist * Math.cos(b)];
+  function setLayer(name, on) {
+    var L = layers[name];
+    if (!L || L.target === (on ? 1 : 0)) return;
+    L.target = on ? 1 : 0;
+    if (on) { L.vis = true; if (cam) L.el.attr('d', spath(L.datum)); }
+    L.el.interrupt().transition().duration(reduceMotion ? 0 : 420).style('opacity', on ? 1 : 0)
+      .on('end', function () { if (!L.target) L.vis = false; });
   }
-  function sectorPath(cx, cy, b0, b1, r) {
-    var pts = [[cx, cy]];
-    for (var b = b0; b <= b1 + 1e-9; b += (b1 - b0) / 12) { var o = offset(b, r); pts.push([cx + o[0], cy + o[1]]); }
-    return 'M' + pts.map(function (p) { return p[0].toFixed(4) + ',' + p[1].toFixed(4); }).join('L') + 'Z';
-  }
-  function drawWindShape() {
-    gWindWorld.selectAll('*').remove();
-    var w = D.wind, cx = w.lon * C, cy = -w.lat;
-    if (wind && wind.sectors && wind.sectors.length) {
-      // wind rose: petals point the way the wind blew; length = share of hours
-      var maxShare = d3.max(wind.sectors, function (s) { return s.share; }) || 1, R = 3.1;
-      var rings = [0.05, 0.1, 0.15, 0.2, 0.25].filter(function (r) { return r <= maxShare * 1.05; });
-      rings.forEach(function (r) {
-        gWindWorld.append('circle').attr('cx', cx).attr('cy', cy).attr('r', R * r / maxShare)
-          .style('fill', 'none').style('stroke', 'var(--smoke)').style('stroke-opacity', 0.55).style('stroke-dasharray', '2 3').style('vector-effect', 'non-scaling-stroke');
-      });
-      wind.sectors.forEach(function (s) {
-        var toward = (s.from_deg + 180) % 360, r = R * s.share / maxShare;
-        if (r <= 0) return;
-        gWindWorld.append('path').attr('d', sectorPath(cx, cy, toward - 10.5, toward + 10.5, r))
-          .style('fill', 'var(--smoke)').style('fill-opacity', 0.2 + 0.55 * s.share / maxShare)
-          .style('stroke', 'var(--halo)').style('stroke-width', '0.8px').style('vector-effect', 'non-scaling-stroke');
-      });
-      gWindWorld.datum({ rings: rings, R: R, maxShare: maxShare });
-    } else {
-      // no data yet: the north-west octant, the directions a north-westerly wind blows towards
-      gWindWorld.append('path').attr('d', sectorPath(cx, cy, 112.5, 157.5, 4.2)).style('fill', 'url(#windfade)');
-      gWindWorld.datum(null);
-    }
-  }
+  function fade(sel, on, ms) { sel.interrupt().transition().duration(reduceMotion ? 0 : (ms || 500)).style('opacity', on ? 1 : 0); }
 
   function resizeStage() {
     W = stageEl.clientWidth; H = stageEl.clientHeight; dpr = Math.min(window.devicePixelRatio || 1, 2);
     canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
-    svgBase.attr('viewBox', '0 0 ' + W + ' ' + H); svgTop.attr('viewBox', '0 0 ' + W + ' ' + H);
+    [svgBase, svgTop].forEach(function (s) { s.attr('width', W).attr('height', H).attr('viewBox', '0 0 ' + W + ' ' + H); });
+    dimRect.attr('width', W).attr('height', H);
     applyView(active >= 0 ? viewFor(active) : viewForBounds(BOUNDS.wide));
   }
   function viewForBounds(b) {
@@ -177,15 +161,24 @@
   }
   function viewFor(i) {
     var s = STEPS[i];
-    if (s.view === 'field') { var f = focusPoint(); return viewForBounds([[f.lon - 0.34, f.lat - 0.22], [f.lon + 0.34, f.lat + 0.22]]); }
+    if (s.view === 'field') {
+      var f = focusPoint(), v = viewForBounds([[f.lon - 0.2, f.lat - 0.125], [f.lon + 0.2, f.lat + 0.125]]);
+      if (assets.field) {                       // keep the visible part of the map inside the 30 m image where it fits
+        var b = assets.field.bounds, k = W / v[2], Hv = narrowMQ.matches ? H * 0.56 : H, shift = (H - Hv) / 2 / k;
+        var hw = v[2] / 2, hh = Hv / k / 2, cyv = v[1] - shift;
+        var xs = [b[0] * C + hw, b[2] * C - hw], ys = [-b[3] + hh, -b[1] - hh];
+        v[0] = xs[0] <= xs[1] ? clamp(v[0], xs[0], xs[1]) : (b[0] + b[2]) / 2 * C;
+        cyv = ys[0] <= ys[1] ? clamp(cyv, ys[0], ys[1]) : -(b[1] + b[3]) / 2;
+        v[1] = cyv + shift;
+      }
+      return v;
+    }
     return viewForBounds(BOUNDS[s.view]);
   }
   function applyView(v) {
     var k = W / v[2];
     cam = { k: k, tx: W / 2 - k * v[0], ty: H / 2 - k * v[1], v: v };
-    gWorld.attr('transform', 'translate(' + cam.tx + ',' + cam.ty + ') scale(' + cam.k + ')');
-    drawOverlay();
-    drawFires();
+    renderMap();
   }
   function flyTo(v) {
     if (flight) flight.stop();
@@ -197,78 +190,197 @@
       if (t >= 1) { flight.stop(); flight = null; }
     });
   }
-  var P = function (lon, lat) { return [cam.tx + cam.k * lon * C, cam.ty - cam.k * lat]; };
-  function satVisible() { return assets.sat.length > 0 && active >= 0 && STEPS[active].sat; }
+  function renderMap() {
+    if (!cam) return;
+    Object.keys(layers).forEach(function (n) { var L = layers[n]; if (L.vis) L.el.attr('d', spath(L.datum)); });
+    renderSat(); renderWind(); drawOverlay(); drawFires(); drawInset();
+  }
 
-  /* ------------------------------------------------------------ overlay */
-  function labelsFor(kind) {
-    var city = function (n, dx, dy, anchor) {
-      var c = D.cities.filter(function (x) { return x.name === n; })[0];
-      return { id: 'c-' + n, lon: c.lon, lat: c.lat, text: n, cls: 'map-label city', dot: true, dx: dx || 6, dy: dy || -6, anchor: anchor || 'start' };
+  /* ------------------------------------------------------------ satellite images (NASA GIBS), placed in screen pixels */
+  function addSatImage(meta) {
+    meta.group = meta.group || 'viirs';
+    var el = gSatImgs.append('image').attr('href', meta.file).attr('preserveAspectRatio', 'none').style('opacity', 0);
+    assets.sat.push({ meta: meta, el: el, on: false });
+    if (meta.group === 'hls') assets.field = meta;
+  }
+  function satAvailable(group) { return assets.sat.some(function (s) { return s.meta.group === group; }); }
+  function renderSat() {
+    assets.sat.forEach(function (s) {
+      if (!s.on && +s.el.style('opacity') === 0) return;
+      var b = s.meta.bounds, p0 = P(b[0], b[3]), p1 = P(b[2], b[1]);
+      s.el.attr('x', p0[0]).attr('y', p0[1]).attr('width', Math.max(0, p1[0] - p0[0])).attr('height', Math.max(0, p1[1] - p0[1]));
+    });
+  }
+
+  /* ------------------------------------------------------------ wind: evenly spaced streamlines of the mean flow */
+  function gridField(w) {
+    var lons = w.lons, lats = w.lats, U = w.u, V = w.v;
+    function idx(arr, x) {
+      if (x <= arr[0]) return [0, 0, 0];
+      if (x >= arr[arr.length - 1]) return [arr.length - 1, arr.length - 1, 0];
+      var j = d3.bisectRight(arr, x) - 1;
+      return [j, j + 1, (x - arr[j]) / (arr[j + 1] - arr[j])];
+    }
+    return function (lon, lat) {
+      var a = idx(lats, lat), b = idx(lons, lon), out = [0, 0], wsum = 0;
+      [[a[0], b[0], (1 - a[2]) * (1 - b[2])], [a[0], b[1], (1 - a[2]) * b[2]], [a[1], b[0], a[2] * (1 - b[2])], [a[1], b[1], a[2] * b[2]]].forEach(function (c) {
+        var u = U[c[0]] && U[c[0]][c[1]], v = V[c[0]] && V[c[0]][c[1]];
+        if (u == null || v == null || !isFinite(u) || !isFinite(v)) return;
+        out[0] += u * c[2]; out[1] += v * c[2]; wsum += c[2];
+      });
+      return wsum > 0.3 ? [out[0] / wsum, out[1] / wsum] : null;
     };
-    if (kind === 'hero') {
-      var hero = [city('Delhi', 7, 4)];
-      if (!satVisible()) hero.push({ id: 's-pb', lon: 72.9, lat: 31.4, text: 'Punjab', cls: 'map-label city', dx: 0, dy: 0, anchor: 'end' });
-      return hero;
+  }
+  function schematicField() {
+    var dir = 135 * Math.PI / 180;            // a north-westerly wind blows towards 135 degrees
+    return function () { return [2 * Math.sin(dir), 2 * Math.cos(dir)]; };
+  }
+  function computeStreamlines(field) {
+    var x0 = 70.6 * C, x1 = 81.0 * C, y0 = 26.0, y1 = 34.4;   // projected x, latitude
+    var dsep = 0.46, dtest = 0.23, h = 0.045, maxSteps = 320, cell = dtest;
+    var hash = {}, lines = [];
+    var key = function (x, y) { return Math.floor(x / cell) + ':' + Math.floor(y / cell); };
+    function near(x, y, d, own) {
+      var cx = Math.floor(x / cell), cy = Math.floor(y / cell), r = Math.ceil(d / cell);
+      for (var i = -r; i <= r; i++) for (var j = -r; j <= r; j++) {
+        var b = hash[(cx + i) + ':' + (cy + j)];
+        if (!b) continue;
+        for (var k = 0; k < b.length; k++) {
+          if (own && b[k][2] === own) continue;
+          var dx = b[k][0] - x, dy = b[k][1] - y;
+          if (dx * dx + dy * dy < d * d) return true;
+        }
+      }
+      return false;
     }
-    if (kind === 'plain') {
-      return [city('Delhi', 7, 4), city('Chandigarh', 7, -5), city('Lahore', -7, -5, 'end'),
-        { id: 's-pb', lon: 74.75, lat: 30.45, text: 'Punjab', cls: 'map-label city', dx: 0, dy: 0, anchor: 'middle' },
-        { id: 's-hr', lon: 76.2, lat: 29.35, text: 'Haryana', cls: 'map-label small', dx: 0, dy: 0, anchor: 'middle' }];
+    function dirAt(x, y) {
+      var w = field(x / C, y);
+      if (!w) return null;
+      var s = Math.sqrt(w[0] * w[0] + w[1] * w[1]);
+      return s < 0.15 ? null : [w[0] / s, w[1] / s, s];
     }
-    if (kind === 'cities') return [city('Amritsar'), city('Ludhiana'), city('Bathinda', 6, 14), city('Patiala', 6, 12), city('Chandigarh', 6, -6)];
-    if (kind === 'six') {
+    function trace(sx, sy, sign, id) {
+      var pts = [], x = sx, y = sy;
+      for (var n = 0; n < maxSteps; n++) {
+        var a = dirAt(x, y); if (!a) break;
+        var mx = x + sign * a[0] * h / 2, my = y + sign * a[1] * h / 2, b = dirAt(mx, my); if (!b) break;
+        x += sign * b[0] * h; y += sign * b[1] * h;
+        if (x < x0 || x > x1 || y < y0 || y > y1) break;
+        if (near(x, y, dtest, id)) break;
+        pts.push([x, y, b[2]]);
+      }
+      return pts;
+    }
+    var id = 0;
+    for (var gy = y0 + dsep / 2; gy < y1; gy += dsep) {
+      for (var gx = x0 + dsep / 2; gx < x1; gx += dsep) {
+        var jx = gx + (Math.sin(gx * 12.9898 + gy * 78.233) * 0.5) * dsep * 0.6, jy = gy + (Math.cos(gx * 39.346 + gy * 11.135) * 0.5) * dsep * 0.6;
+        if (near(jx, jy, dsep, null) || !dirAt(jx, jy)) continue;
+        id += 1;
+        var back = trace(jx, jy, -1, id).reverse(), fwd = trace(jx, jy, 1, id);
+        var pts = back.concat([[jx, jy, (dirAt(jx, jy) || [0, 0, 0])[2]]], fwd);
+        if (pts.length < 14) continue;
+        pts.forEach(function (p) { var kk = key(p[0], p[1]); (hash[kk] = hash[kk] || []).push([p[0], p[1], id]); });
+        lines.push(pts.map(function (p) { return [p[0] / C, p[1], p[2]]; }));
+      }
+    }
+    return lines;
+  }
+  function setWind(field, measured) {
+    wind.lines = computeStreamlines(field);
+    wind.measured = measured;
+    root.classList.toggle('wind-ready', measured);
+    gWind.selectAll('*').remove();
+    wind.paths = gWind.selectAll('path.flow').data(wind.lines).enter().append('path').attr('class', 'flow')
+      .style('stroke-width', function (l) { return measured ? (0.9 + 0.35 * clamp(d3.mean(l, function (p) { return p[2]; }), 0, 4)).toFixed(2) + 'px' : null; });
+    wind.heads = gWind.selectAll('path.head').data(wind.lines).enter().append('path').attr('class', 'head');
+    renderWind();
+  }
+  function renderWind() {
+    if (!wind.paths || !cam || +gWind.style('opacity') === 0 && !(active >= 0 && STEPS[active].wind)) return;
+    wind.paths.attr('d', function (l) {
+      var s = '';
+      for (var i = 0; i < l.length; i += 2) { var p = P(l[i][0], l[i][1]); s += (i ? 'L' : 'M') + p[0].toFixed(1) + ',' + p[1].toFixed(1); }
+      return s;
+    });
+    wind.heads.attr('d', function (l) {
+      var a = P(l[l.length - 3][0], l[l.length - 3][1]), b = P(l[l.length - 1][0], l[l.length - 1][1]);
+      var ang = Math.atan2(b[1] - a[1], b[0] - a[0]), r = 6;
+      var p1 = [b[0] - r * Math.cos(ang - 0.45), b[1] - r * Math.sin(ang - 0.45)], p2 = [b[0] - r * Math.cos(ang + 0.45), b[1] - r * Math.sin(ang + 0.45)];
+      return 'M' + p1[0].toFixed(1) + ',' + p1[1].toFixed(1) + 'L' + b[0].toFixed(1) + ',' + b[1].toFixed(1) + 'L' + p2[0].toFixed(1) + ',' + p2[1].toFixed(1);
+    });
+  }
+
+  /* ------------------------------------------------------------ labels, graticule, focus, scale, locator */
+  function riverAnchor(name, lon, lat) {
+    var f = F.rivers.filter(function (r) { return r.properties.name === name; })[0];
+    if (!f) return null;
+    var best = null, bd = Infinity, lines = f.geometry.type === 'LineString' ? [f.geometry.coordinates] : f.geometry.coordinates;
+    lines.forEach(function (ln) { ln.forEach(function (c) { var d = (c[0] - lon) * (c[0] - lon) + (c[1] - lat) * (c[1] - lat); if (d < bd) { bd = d; best = c; } }); });
+    return best;
+  }
+  var RIVERS = [['Sutlej', 75.75, 31.0], ['Beas', 75.35, 31.55], ['Ravi', 75.25, 32.15], ['Yamuna', 77.25, 29.6], ['Chenab', 74.1, 32.35]]
+    .map(function (r) { var a = riverAnchor(r[0], r[1], r[2]); return a ? { name: r[0], lon: a[0], lat: a[1] } : null; }).filter(Boolean);
+  function labelsFor(kind) {
+    var cityL = function (n, dx, dy, anchor) {
+      var c = D.cities.filter(function (x) { return x.name === n; })[0];
+      return c ? { id: 'c-' + n, lon: c.lon, lat: c.lat, text: n, cls: 'map-label city', dot: true, dx: dx === undefined ? 6 : dx, dy: dy === undefined ? -6 : dy, anchor: anchor || 'start' } : null;
+    };
+    var area = function (id, text, lon, lat, cls) { return { id: id, lon: lon, lat: lat, text: text, cls: 'map-label ' + cls, dx: 0, dy: 0, anchor: 'middle' }; };
+    var riverL = function (names) {
+      return RIVERS.filter(function (r) { return names.indexOf(r.name) >= 0; })
+        .map(function (r) { return { id: 'r-' + r.name, lon: r.lon, lat: r.lat, text: r.name, cls: 'map-label river', dx: 5, dy: -5, anchor: 'start' }; });
+    };
+    var out = [];
+    if (kind === 'wide') out = [area('a-in', 'India', 78.6, 21.8, 'country'), area('a-pk', 'Pakistan', 68.9, 27.4, 'country-minor'), area('a-np', 'Nepal', 84.3, 28.1, 'country-minor'),
+      area('a-as', 'Arabian Sea', 67.6, 15.0, 'water'), area('a-bb', 'Bay of Bengal', 88.8, 16.0, 'water'), cityL('Delhi', 7, 4), area('a-pb', 'Punjab', 72.6, 31.4, 'state-key')];
+    else if (kind === 'north') out = [area('a-in', 'India', 80.5, 24.6, 'country'), area('a-pk', 'Pakistan', 69.6, 28.6, 'country-minor'), area('a-np', 'Nepal', 84.3, 28.1, 'country-minor'),
+      cityL('Delhi', 7, 4), area('a-pb', 'Punjab', 72.7, 31.4, 'state-key')];
+    else if (kind === 'plain') out = [cityL('Delhi', 7, 4), cityL('Chandigarh', 7, -5), cityL('Lahore', -7, -5, 'end'), area('a-pk', 'Pakistan', 72.9, 29.7, 'country-minor'),
+      area('s-pb', 'Punjab', 74.75, 30.45, 'state'), area('s-hr', 'Haryana', 76.25, 29.25, 'state-minor'), area('s-hp', 'Himachal Pradesh', 77.35, 31.85, 'state-minor'),
+      area('s-rj', 'Rajasthan', 74.0, 28.0, 'state-minor')].concat(riverL(['Sutlej', 'Beas', 'Ravi', 'Yamuna', 'Chenab']));
+    else if (kind === 'punjab') out = [cityL('Amritsar'), cityL('Jalandhar'), cityL('Ludhiana'), cityL('Bathinda', 6, 14), cityL('Patiala', 6, 12), cityL('Chandigarh', 6, -6),
+      area('a-pk', 'Pakistan', 74.25, 30.75, 'country-minor')].concat(riverL(['Sutlej', 'Beas', 'Ravi']));
+    else if (kind === 'six') {
       var nudge = { 'Ludhiana': [0, -4], 'Moga': [-4, 0], 'Barnala': [-2, 2], 'Sangrur': [0, 8], 'Patiala': [6, 10], 'Fatehgarh Sahib': [4, -8] };
-      return sixFeatures.features.map(function (f) {
+      out = F.districts.map(function (f) {
         var c = d3.geoCentroid(f), n = f.properties.name, d = nudge[n] || [0, 0];
-        return { id: 'd-' + n, lon: c[0], lat: c[1], text: n, cls: 'map-label district six', dx: d[0], dy: d[1], anchor: 'middle' };
+        return { id: 'd-' + n, lon: c[0], lat: c[1], text: n, cls: 'map-label district' + (f.properties.six ? ' six' : ''), dx: d[0], dy: d[1], anchor: 'middle' };
       });
     }
-    return [];
+    return out.filter(Boolean);
   }
 
   function drawOverlay() {
     if (!cam || active < 0) return;
-    var s = STEPS[active], items = labelsFor(s.labels);
-    // wind annotation
-    if (s.wind) {
-      var w = D.wind, info = gWindWorld.datum();
-      items.push({ id: 'w-pt', lon: w.lon, lat: w.lat, text: '', cls: 'map-label small', dot: true, dx: 0, dy: 0, anchor: 'start' });
-      if (info) {
-        info.rings.forEach(function (r) {
-          var o = offset(45, info.R * r / info.maxShare);
-          items.push({ id: 'w-r' + r, lon: w.lon + o[0] / C, lat: w.lat - o[1], text: Math.round(r * 100) + '% of hours', cls: 'map-label small', dx: 3, dy: -3, anchor: 'start' });
-        });
-      } else {
-        var m = offset(135, 2.6);
-        items.push({ id: 'w-lab', lon: w.lon + m[0] / C + 0.15, lat: w.lat - m[1] + 0.35, text: 'North-westerly wind', cls: 'map-label small', dx: 0, dy: 0, anchor: 'start' });
-      }
-    }
+    var s = STEPS[active], items = labelsFor(s.labels).filter(function (d) {
+      var p = P(d.lon, d.lat); return p[0] > -40 && p[0] < W + 40 && p[1] > -20 && p[1] < H + 20;
+    });
     var sel = gLabels.selectAll('g.lab').data(items, function (d) { return d.id; });
     sel.exit().remove();
     var en = sel.enter().append('g').attr('class', 'lab');
     en.append('circle').attr('r', 3);
     en.append('text');
     sel.merge(en)
-      .attr('transform', function (d) { var p = P(d.lon, d.lat); return 'translate(' + p[0] + ',' + p[1] + ')'; })
+      .attr('transform', function (d) { var p = P(d.lon, d.lat); return 'translate(' + p[0].toFixed(1) + ',' + p[1].toFixed(1) + ')'; })
       .each(function (d) {
         var g = d3.select(this);
-        g.select('circle').style('display', d.dot ? null : 'none').style('fill', 'var(--ink)').style('stroke', 'var(--halo)').style('stroke-width', '1.5px');
+        g.select('circle').style('display', d.dot ? null : 'none').attr('class', 'map-dot');
         g.select('text').attr('class', d.cls).attr('x', d.dx).attr('y', d.dy).attr('dy', '0.32em').attr('text-anchor', d.anchor).text(d.text);
       });
 
     gGrat.selectAll('*').remove();
     if (s.grat) {
       var step = s.grat, lon0 = (-cam.tx / cam.k) / C, lon1 = ((W - cam.tx) / cam.k) / C, latTop = cam.ty / cam.k, latBot = (cam.ty - H) / cam.k;
-      var dec = step < 1 ? 1 : 0, topOff = narrowMQ.matches ? 26 : 0;
+      var dec = step < 1 ? (step < 0.5 ? 1 : 1) : 0, topOff = narrowMQ.matches ? 26 : 0;
       for (var lo = Math.ceil(lon0 / step) * step; lo <= lon1; lo += step) {
         var x = P(lo, 0)[0];
-        gGrat.append('line').attr('x1', x).attr('x2', x).attr('y1', 0).attr('y2', H).style('stroke', 'var(--ink-3)').style('stroke-opacity', 0.28).style('stroke-width', '0.6px');
+        gGrat.append('line').attr('class', 'grat').attr('x1', x).attr('x2', x).attr('y1', 0).attr('y2', H);
         gGrat.append('text').attr('class', 'map-label small').attr('x', x + 4).attr('y', 16 + topOff).text(lo.toFixed(dec) + '\u00b0 E');
       }
       for (var la = Math.ceil(latBot / step) * step; la <= latTop; la += step) {
         var y = P(0, la)[1];
-        gGrat.append('line').attr('x1', 0).attr('x2', W).attr('y1', y).attr('y2', y).style('stroke', 'var(--ink-3)').style('stroke-opacity', 0.28).style('stroke-width', '0.6px');
+        gGrat.append('line').attr('class', 'grat').attr('x1', 0).attr('x2', W).attr('y1', y).attr('y2', y);
         gGrat.append('text').attr('class', 'map-label small').attr('x', 6).attr('y', y - 5).text(la.toFixed(dec) + '\u00b0 N');
       }
     }
@@ -277,28 +389,50 @@
     if (s.focus && !(s.photo && assets.photo)) {
       var f = focusPoint(), fp = P(f.lon, f.lat);
       [[fp[0], 0, fp[0], H], [0, fp[1], W, fp[1]]].forEach(function (l) {
-        gFocus.append('line').attr('x1', l[0]).attr('y1', l[1]).attr('x2', l[2]).attr('y2', l[3]).style('stroke', 'var(--ink)').style('stroke-opacity', 0.55).style('stroke-width', '0.8px');
+        gFocus.append('line').attr('class', 'crosshair').attr('x1', l[0]).attr('y1', l[1]).attr('x2', l[2]).attr('y2', l[3]);
       });
-      gFocus.append('circle').attr('cx', fp[0]).attr('cy', fp[1]).attr('r', 9).style('fill', 'none').style('stroke', 'var(--ember)').style('stroke-width', '2px');
-      var left = fp[0] + 244 > W, tx = left ? fp[0] - 14 : fp[0] + 14;
+      gFocus.append('circle').attr('class', 'target').attr('cx', fp[0]).attr('cy', fp[1]).attr('r', 9);
+      var left = fp[0] + 250 > W, tx = left ? fp[0] - 14 : fp[0] + 14;
       var t = gFocus.append('text').attr('class', 'map-label readout').attr('text-anchor', left ? 'end' : 'start').attr('x', tx).attr('y', fp[1] - 12 - (f.lines.length - 1) * 16);
-      f.lines.forEach(function (l, i) { t.append('tspan').attr('x', tx).attr('dy', i ? 16 : 0).style('font-weight', i ? null : 650).text(l); });
+      f.lines.forEach(function (l, i) { t.append('tspan').attr('x', tx).attr('dy', i ? 16 : 0).style('font-weight', i ? null : 600).text(l); });
     }
 
     gScale.selectAll('*').remove();
     var pxPerKm = cam.k / KM_PER_DEG, nice = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000], km = nice[0];
     nice.forEach(function (n) { if (n * pxPerKm <= 110) km = n; });
-    var bw = km * pxPerKm, bx = W - bw - 18, by = H - (narrowMQ.matches ? H * 0.46 : 22);
-    var col = satVisible() ? '#f4f6f5' : 'var(--ink)';
-    gScale.append('rect').attr('x', bx).attr('y', by).attr('width', bw).attr('height', 3).style('fill', col);
-    gScale.append('text').attr('class', 'map-label small').attr('x', bx + bw).attr('y', by - 6).attr('text-anchor', 'end').text(km + ' km');
+    var bw = km * pxPerKm, bx = W - bw - 20, by = H - (narrowMQ.matches ? H * 0.46 : 26);
+    gScale.append('rect').attr('class', 'scalebar').attr('x', bx).attr('y', by).attr('width', bw).attr('height', 3);
+    gScale.append('text').attr('class', 'map-label small').attr('x', bx + bw).attr('y', by - 7).attr('text-anchor', 'end').text(km + ' km');
+  }
+
+  var insetCache = {};
+  function drawInset() {
+    gInset.selectAll('*').remove();
+    if (!cam || active < 0 || !STEPS[active].inset) return;
+    var mob = narrowMQ.matches, size = mob ? 84 : 116, pad = 8;
+    var b = BOUNDS.punjab, bx0 = b[0][0] * C, bx1 = b[1][0] * C, by0 = -b[1][1], by1 = -b[0][1];
+    var k = Math.min((size - 2 * pad) / (bx1 - bx0), (size - 2 * pad) / (by1 - by0));
+    var ox = (size - k * (bx1 - bx0)) / 2, oy = (size - k * (by1 - by0)) / 2;
+    var proj = function (lon, lat) { return [ox + k * (lon * C - bx0), oy + k * (-lat - by0)]; };
+    var insetPunjabPath = insetCache[size] || (insetCache[size] = d3.geoPath(d3.geoTransform({ point: function (lon, lat) { var p = proj(lon, lat); this.stream.point(p[0], p[1]); } })));
+    var x = mob ? W - size - 12 : 20, y = mob ? 12 : H - size - 44;
+    var g = gInset.attr('transform', 'translate(' + x + ',' + y + ')');
+    g.append('rect').attr('class', 'inset-bg').attr('width', size).attr('height', size);
+    g.append('path').attr('class', 'inset-pb').attr('d', insetPunjabPath(punjab));
+    g.append('path').attr('class', 'inset-six').attr('d', insetPunjabPath(sixFeatures));
+    var lonL = (-cam.tx / cam.k) / C, lonR = ((W - cam.tx) / cam.k) / C, latT = cam.ty / cam.k, latB = (cam.ty - H) / cam.k;
+    var a = proj(lonL, latT), c = proj(lonR, latB);
+    var rx = clamp(a[0], 0, size), ry = clamp(a[1], 0, size), rw = clamp(c[0], 0, size) - rx, rh = clamp(c[1], 0, size) - ry;
+    g.append('rect').attr('class', 'inset-view').attr('x', rx).attr('y', ry).attr('width', Math.max(2, rw)).attr('height', Math.max(2, rh));
+    g.append('text').attr('class', 'map-label small').attr('x', 4).attr('y', size + 14).text('Punjab');
   }
 
   function focusPoint() {
-    var b = fires.B;
+    var b = fires.B, inField = function (p) { return p.lon >= FIELD[0] && p.lon <= FIELD[2] && p.lat >= FIELD[1] && p.lat <= FIELD[3]; };
     if (b && b.pts.length) {
-      var sang = b.pts.filter(function (p) { return p.district === 'Sangrur'; });
-      var pool = sang.length ? sang : b.pts;
+      var pool = b.pts.filter(inField);
+      if (!pool.length) pool = b.pts.filter(function (p) { return p.district === 'Sangrur'; });
+      if (!pool.length) pool = b.pts;
       var best = pool.reduce(function (m, p) { return p.frp > m.frp ? p : m; }, pool[0]);
       var key = b.season + ':' + best.lon + ':' + best.lat;
       if (!focus || focus.key !== key) {
@@ -310,9 +444,8 @@
       }
       return focus;
     }
-    var f = F.districts.filter(function (d) { return d.properties.name === 'Sangrur'; })[0];
-    var c = f ? d3.geoCentroid(f) : [75.84, 30.25];
-    return { lon: c[0], lat: c[1], lines: ['Sangrur district', 'centre ' + c[1].toFixed(2) + '\u00b0 N, ' + c[0].toFixed(2) + '\u00b0 E'] };
+    var lon = (FIELD[0] + FIELD[2]) / 2, lat = (FIELD[1] + FIELD[3]) / 2;
+    return { lon: lon, lat: lat, lines: ['Sangrur district', lat.toFixed(2) + '\u00b0 N, ' + lon.toFixed(2) + '\u00b0 E'] };
   }
 
   /* ------------------------------------------------------------ fire detections */
@@ -322,8 +455,11 @@
     ctx.clearRect(0, 0, W, H);
     var set = fireState.key ? fires[fireState.key] : null;
     if (!set) return;
-    var k = cam.k, tx = cam.tx, ty = cam.ty, r = clamp(k / 300, 1.1, 4.5), dmax = fireState.dayMax, i, p, x, y, pts = set.pts;
-    ctx.globalAlpha = 0.78; ctx.fillStyle = tok('--ember') || '#c43d1c'; ctx.beginPath();
+    var onSat = stageEl.classList.contains('on-sat');
+    var k = cam.k, tx = cam.tx, ty = cam.ty, r = clamp(k / 300, 1.2, 4.5), dmax = fireState.dayMax, i, p, x, y, pts = set.pts;
+    ctx.globalAlpha = onSat ? 0.95 : 0.8;
+    ctx.fillStyle = onSat ? '#ffb23e' : (tok('--ember') || '#b8371a');
+    ctx.beginPath();
     for (i = 0; i < pts.length; i++) {
       p = pts[i]; if (p.day > dmax) break;
       if (p.day >= dmax - 1 && dmax < SEASON_DAYS - 1) continue;
@@ -333,11 +469,11 @@
     }
     ctx.fill();
     if (dmax < SEASON_DAYS - 1) {
-      ctx.globalAlpha = 0.95; ctx.fillStyle = tok('--spark') || '#ef9f2f'; ctx.beginPath();
+      ctx.globalAlpha = 1; ctx.fillStyle = onSat ? '#fff3c4' : (tok('--spark') || '#ef9f2f'); ctx.beginPath();
       for (i = 0; i < pts.length; i++) {
         p = pts[i]; if (p.day > dmax) break; if (p.day < dmax - 1) continue;
         x = tx + k * p.wx; y = ty + k * p.wy;
-        ctx.moveTo(x + r * 1.4, y); ctx.arc(x, y, r * 1.4, 0, 6.2832);
+        ctx.moveTo(x + r * 1.5, y); ctx.arc(x, y, r * 1.5, 0, 6.2832);
       }
       ctx.fill();
     }
@@ -348,26 +484,27 @@
     if (!set || s.focus) { hud.classList.remove('on'); return; }
     var dmax = fireState.dayMax, n = 0;
     while (n < set.pts.length && set.pts[n].day <= dmax) n++;
-    hud.innerHTML = '<b>' + set.season + ' season</b>, 15 Sep to ' + shortDate(seasonDate(set.season, Math.min(dmax, set.lastDay))) + '<br>' + fmt(n) + ' fire detections';
+    hud.innerHTML = '<b>' + set.season + ' season</b>, 15 Sep to ' + shortDate(seasonDate(set.season, Math.min(dmax, set.lastDay))) +
+      '<br><span class="hud-dot"></span>' + fmt(n) + ' fire detections, VIIRS on NOAA-20';
     hud.classList.add('on');
   }
 
   /* ------------------------------------------------------------ steps */
-  var steps = Array.prototype.slice.call(document.querySelectorAll('.step'));
   function setStep(i) {
     if (i === active) return;
     active = i;
-    var s = STEPS[i], useSat = satVisible(), on = {};
-    stageEl.classList.toggle('on-sat', useSat);
-    s.layers.forEach(function (n) { on[n] = 1; });
-    if (on.six) on.sixLine = 1;
-    if (s.view === 'plain') on.neighbours = 1;
-    if (useSat) { on.land = 0; on.punjabFill = 0; on.punjabLine = 1; }
-    Object.keys(layer).forEach(function (n) { layer[n].style('opacity', on[n] ? 1 : 0); });
-    layer.punjabLine.style('stroke', useSat ? '#f4f6f5' : 'var(--ink)');
-    layer.neighbours.style('stroke', useSat ? 'rgba(244,246,245,0.8)' : 'var(--ink-2)');
-    gSat.style('opacity', useSat ? 1 : 0);
-    gWindWorld.style('opacity', s.wind ? 1 : 0);
+    stepEls.forEach(function (el, j) { el.classList.toggle('is-active', j === i); });
+    var s = STEPS[i], satOn = !!(s.sat && satAvailable(s.sat));
+    stageEl.classList.toggle('on-sat', satOn);
+    var want = {};
+    s.layers.forEach(function (n) { if (!(satOn && COVERED_BY_SAT[n])) want[n] = 1; });
+    Object.keys(layers).forEach(function (n) { setLayer(n, !!want[n]); });
+    assets.sat.forEach(function (sat) {
+      var on = satOn && sat.meta.group === s.sat;
+      if (on !== sat.on) { sat.on = on; fade(sat.el, on, 650); }
+    });
+    fade(dimRect, satOn && s.dim, 500);
+    fade(gWind, !!s.wind, 600);
     fireState.key = s.fires && fires[s.fires] ? s.fires : null;
     if (!s.scrub) fireState.dayMax = SEASON_DAYS - 1;
     canvas.style.opacity = fireState.key ? 1 : 0;
@@ -377,10 +514,14 @@
     var parts = [];
     if (showPhoto) parts.push(assets.photo.credit);
     else {
-      if (useSat) parts.push('Satellite image: NASA GIBS, VIIRS on Suomi NPP, 11 November 2021.');
-      if (s.wind && wind) parts.push('Wind: NASA POWER, MERRA-2.');
-      if (fireState.key) parts.push('Fire detections: NASA FIRMS, VIIRS on NOAA-20.');
-      if (!useSat) parts.push('Boundaries: INDIAN-SHAPEFILES (datta07), Natural Earth.');
+      if (satOn) {
+        var m = assets.sat.filter(function (x) { return x.meta.group === s.sat; }).pop().meta;
+        parts.push(m.group === 'hls' ? 'Image: NASA HLS ' + (m.sensor || '') + ', ' + longDate(new Date(m.date + 'T00:00:00Z')) + ', via NASA GIBS.'
+          : 'Image: NASA GIBS, ' + (m.group === 'modis' ? 'MODIS on Terra' : 'VIIRS on Suomi NPP') + ', ' + longDate(new Date(m.date + 'T00:00:00Z')) + '.');
+      }
+      if (s.wind) parts.push(wind.measured ? 'Wind: NASA POWER, MERRA-2.' : 'Wind lines are schematic.');
+      if (fireState.key) parts.push('Fires: NASA FIRMS, VIIRS on NOAA-20.');
+      parts.push('Boundaries: INDIAN-SHAPEFILES (datta07), Natural Earth.');
     }
     credit.textContent = parts.join(' ');
     flyTo(viewFor(i));
@@ -390,7 +531,7 @@
     if (active < 0) return;
     var s = STEPS[active];
     if (s.scrub && fireState.key) {
-      var r = steps[active].getBoundingClientRect(), vh = window.innerHeight;
+      var r = stepEls[active].getBoundingClientRect(), vh = window.innerHeight;
       var prog = clamp((vh * 0.62 - r.top) / (r.height * 0.8), 0, 1);
       fireState.dayMax = reduceMotion ? SEASON_DAYS - 1 : Math.round(prog * (SEASON_DAYS - 1));
       drawFires();
@@ -400,40 +541,39 @@
   function refreshStep() { if (active >= 0) { var i = active; active = -1; setStep(i); } }
   function initStage() {
     buildStage();
+    setWind(schematicField(), false);
     setStep(0);
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (e) { if (e.isIntersecting) setStep(+e.target.getAttribute('data-step')); });
     }, { rootMargin: '-50% 0px -49% 0px', threshold: 0 });
-    steps.forEach(function (st) { io.observe(st); });
+    stepEls.forEach(function (st) { io.observe(st); });
   }
 
-  /* ------------------------------------------------------------ optional data written by the pipeline */
+  /* ------------------------------------------------------------ data written by the pipeline (all optional) */
   function getJSON(url) {
     return fetch(url, { cache: 'no-cache' }).then(function (r) { if (!r.ok) throw new Error(url + ' ' + r.status); return r.json(); });
   }
   function loadAssets() {
     return getJSON('data/assets.json').then(function (a) {
-      (a.sat || []).forEach(function (s) {
-        var b = s.bounds;
-        gSat.append('image').attr('href', s.file).attr('preserveAspectRatio', 'none')
-          .attr('x', b[0] * C).attr('y', -b[3]).attr('width', (b[2] - b[0]) * C).attr('height', b[3] - b[1]);
-        assets.sat.push(s);
-      });
+      (a.sat || []).forEach(addSatImage);
+      if (assets.field) {
+        root.classList.add('hls-ready');
+        put('hlsDate', longDate(new Date(assets.field.date + 'T00:00:00Z')));
+        put('hlsSensor', assets.field.sensor || 'Sentinel-2');
+      }
       if (a.photo && a.photo.file) {
         photo.onload = function () { assets.photo = a.photo; refreshStep(); };
         photo.src = a.photo.file;
       }
-      if (assets.sat.length) refreshStep();
+      if (assets.sat.length) { focus = null; refreshStep(); }
     }).catch(function () { /* without imagery the vector map stands on its own */ });
   }
-  function loadWind() {
-    return getJSON('data/wind.json').then(function (w) {
-      if (!w || w.status !== 'ok' || !w.sectors) throw new Error('no wind');
-      wind = w;
-      root.classList.add('wind-ready');
-      drawWindShape();
+  function loadWindField() {
+    return getJSON('data/windfield.json').then(function (w) {
+      if (!w || w.status !== 'ok' || !w.u || !w.v) throw new Error('no wind field');
+      setWind(gridField(w), true);
       refreshStep();
-    }).catch(function () { /* the north-west sector stays */ });
+    }).catch(function () { /* the schematic flow stays, and the page says so */ });
   }
   function prepSeason(js, names) {
     var ix = {};
@@ -451,7 +591,6 @@
         fires.A = prepSeason(pair[0], live.districts || []);
         fires.B = prepSeason(pair[1], live.districts || []);
         root.classList.add('live-ready');
-        var put = function (k, v) { document.querySelectorAll('[data-live="' + k + '"]').forEach(function (el) { el.textContent = v; }); };
         put('countA', fmt(fires.A.total)); put('seasonB', fires.B.season); put('countB', fmt(fires.B.total));
         put('throughB', fires.B.through ? ' to ' + longDate(new Date(fires.B.through + 'T00:00:00Z')) : '');
         focus = null;
@@ -504,7 +643,7 @@
       var yb = d3.scaleLinear().domain([0, 35]).range([ph - 26, legendTwoLines ? 64 : 50]);
       [0, 10, 20, 30].forEach(function (t) {
         B.append('line').attr('x1', 0).attr('x2', pw).attr('y1', yb(t)).attr('y2', yb(t)).style('stroke', t ? 'var(--rule-2)' : 'var(--rule)');
-        if (t) txt(B, 0, yb(t) - 4, t);
+        if (t) txt(B, pw, yb(t) - 4, t, null, 'end');
       });
       seasons.forEach(function (s) { txt(B, xb(s), ph - 8, s, null, 'middle'); });
       series.forEach(function (s) {
@@ -767,12 +906,12 @@
     updateAir();
   });
   var schemeMQ = window.matchMedia('(prefers-color-scheme: dark)');
-  if (schemeMQ.addEventListener) schemeMQ.addEventListener('change', function () { root.style.removeProperty('--page'); updateAir(); drawFires(); renderAll(); });
+  if (schemeMQ.addEventListener) schemeMQ.addEventListener('change', function () { root.style.removeProperty('--page'); updateAir(); if (mapOK) renderMap(); renderAll(); });
 
   labelTables();
   if (mapOK) initStage();
   renderAll();
   wireShare();
   updateAir();
-  if (mapOK) { loadAssets(); loadWind(); loadFires(); }
+  if (mapOK) { loadAssets(); loadWindField(); loadFires(); }
 })();

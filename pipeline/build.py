@@ -30,10 +30,11 @@ def current_season(today):
     return today.year if (today.month, today.day) >= config.SEASON_START else today.year - 1
 
 
-def build_assets(refresh, offline, log):
+def build_assets(refresh, offline, log, today=None):
+    today = today or dt.datetime.utcnow().date()
     manifest = {"sat": [], "photo": None}
     for scene in config.SAT_SCENES:
-        rel = f"assets/sat/viirs-{config.SAT_DATE}-{scene['id']}.jpg"
+        rel = f"assets/sat/{scene['group']}-{scene['date']}-{scene['id']}.jpg"
         path = config.ROOT / rel
         if (refresh or not path.exists()) and not offline:
             try:
@@ -42,8 +43,9 @@ def build_assets(refresh, offline, log):
             except Exception as e:  # keep going: the map works without imagery
                 log(f"  satellite image {scene['id']} skipped: {e}")
         if path.exists():
-            manifest["sat"].append({"id": scene["id"], "file": rel, "bounds": scene["bounds"],
-                                    "date": config.SAT_DATE, "layer": config.SAT_LAYER})
+            manifest["sat"].append({"id": scene["id"], "group": scene["group"], "file": rel, "bounds": scene["bounds"],
+                                    "date": scene["date"], "layer": scene["layer"]})
+    manifest["sat"].extend(build_field_image(today, refresh, offline, log))
     p = config.PHOTO
     path = config.ROOT / p["out"]
     if (refresh or not path.exists()) and not offline:
@@ -55,6 +57,38 @@ def build_assets(refresh, offline, log):
     if path.exists():
         manifest["photo"] = {"file": p["out"], "credit": p["credit"], "page": p["page"], "licence": p["licence"]}
     write_json(config.DATA / "assets.json", manifest)
+
+
+def build_field_image(today, refresh, offline, log):
+    """The 30 m image for the field view: refreshed each season once a clear date exists; the previous one is kept otherwise."""
+    sc = config.FIELD_SCENE
+    folder = config.ROOT / "assets" / "sat"
+    existing = sorted(folder.glob("hls-*-field.jpg")) if folder.exists() else []
+    meta_path = config.DATA / "field-image.json"
+    meta = read_json(meta_path) or {}
+    season = current_season(today)
+    have_season = int(meta.get("date", "0000")[:4] or 0) if meta.get("date") else 0
+    if not offline and (refresh or not existing or have_season < season):
+        for s in (season, season - 1):
+            try:
+                got = media.best_field_image(s, today, log, sc)
+            except Exception as e:
+                log(f"  field image search failed: {e}")
+                got = None
+            if got:
+                body, d, layer, sensor = got
+                rel = f"assets/sat/hls-{d.isoformat()}-field.jpg"
+                for old in existing:
+                    if old.name != f"hls-{d.isoformat()}-field.jpg":
+                        old.unlink()
+                media.save(body, config.ROOT / rel)
+                meta = {"file": rel, "date": d.isoformat(), "layer": layer, "sensor": sensor}
+                write_json(meta_path, meta)
+                break
+    if meta.get("file") and (config.ROOT / meta["file"]).exists():
+        return [{"id": "field", "group": "hls", "file": meta["file"], "bounds": sc["bounds"], "date": meta["date"],
+                 "layer": meta["layer"], "sensor": meta["sensor"]}]
+    return []
 
 
 def season_record(season, source, rows, until):
@@ -128,14 +162,14 @@ def main(argv=None):
     args = ap.parse_args(argv)
     today = dt.date.fromisoformat(args.today) if args.today else dt.datetime.utcnow().date()
     print(f"Building for {today}")
-    build_assets(args.refresh, args.offline, print)
-    wind_path = config.DATA / "wind.json"
-    current = read_json(wind_path) or {}
+    build_assets(args.refresh, args.offline, print, today)
+    field_path = config.DATA / "windfield.json"
+    current = read_json(field_path) or {}
     if (args.refresh or current.get("status") != "ok") and not args.offline:
         try:
-            write_json(wind_path, wind.build(print))
-        except Exception as e:  # the page falls back to the north-west sector
-            print(f"  wind summary skipped: {e}")
+            write_json(field_path, wind.build_field(print))
+        except Exception as e:  # the page falls back to a schematic flow and says so
+            print(f"  wind field skipped: {e}")
     try:
         build_fires(today, args.refresh, args.offline, print)
     except (firms.FirmsError, checks.CheckError) as e:

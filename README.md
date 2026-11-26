@@ -33,7 +33,8 @@ To look at it locally: `python3 -m http.server 8000`, then open http://localhost
 | Part | What it does |
 | --- | --- |
 | Map story | Scrolls from South Asia to Punjab, the six districts that cause about 40% of India’s crop-smoke deaths, and a single field. Fire detections play forward day by day as you scroll. |
-| Wind | A wind rose at Ludhiana from NASA POWER (MERRA-2): petals point the way the wind blew, their length is the share of hours, 15 October to 30 November, 2016–2025. Until the data are downloaded, a shaded sector shows the directions a north-westerly wind blows towards. |
+| Wind | Evenly spaced, moving streamlines of the season-mean wind 50 m above ground (NASA POWER, MERRA-2, 15 October to 30 November 2016–2025). Until the data are downloaded, the lines show the prevailing north-westerly flow and are labelled as schematic. |
+| Imagery | VIIRS (11 November 2021) for the overview steps, MODIS at 250 m for the Punjab steps with fire dots on top, and a 30 m HLS image of burn scars for the field step, chosen automatically as the clearest recent date. |
 | Figures 1 to 4 | Counted fires against mapped burnt area; the timing of burning against satellite passes; the price of clearing a field without fire; the results of the Punjab trial |
 | Figure 5 | Calculator: what a farmer with a given number of acres would receive |
 | Figure 7 | Explorer: acres no longer burnt, deaths averted and public money at any assumed effect |
@@ -55,6 +56,7 @@ recomputed from the CEEW survey microdata; the cost figures are taken from the g
 | `js/site.js` | Map story, data loading, charts, calculator, explorer, sharing |
 | `js/data.js` | Every number behind the figures, each with its source key |
 | `js/geo.js` | District and state boundaries, coast and rivers (TopoJSON) |
+| `js/india.js` | India’s national boundary and state lines (GeoJSON, simplified) |
 | `data/figures/` | CSV files behind Figures 1, 3 and 4 |
 | `data/claims-register.csv` | Source, locator and check date for every claim on the page |
 | `data/*.json` | Written by the pipeline: `assets.json`, `wind.json`, `live.json`, `fires-<season>.json` |
@@ -62,7 +64,7 @@ recomputed from the CEEW survey microdata; the cost figures are taken from the g
 | `pipeline/` | Python, standard library only, with offline tests |
 | `tools/refs.py` | Numbers citations by first appearance and orders the reference list; fails on a missing entry |
 | `tools/figures.mjs` | Rewrites the CSV files from `js/data.js` |
-| `vendor/`, `fonts/` | D3 7.9.0, topojson-client 3.1.0, Charis SIL and Libre Franklin, with licences |
+| `vendor/`, `fonts/` | D3 7.9.0, topojson-client 3.1.0, STIX Two Text and Fira Sans, with licences |
 
 ## Editing
 
@@ -78,10 +80,12 @@ recomputed from the CEEW survey microdata; the cost figures are taken from the g
 - Fire detections: NASA FIRMS area API, VIIRS on NOAA-20, five days per request; standard-processing data for
   seasons that ended at least 100 days ago, near-real-time data otherwise. Kept: points inside Punjab’s districts,
   15 September to 30 November in India time, nominal or high confidence, no duplicates.
-- Wind: NASA POWER hourly API, WS50M and WD50M at Ludhiana, local solar time, 2016–2025. Direction follows the
-  meteorological convention (where the wind comes from). Hours below 0.5 m/s count as calm.
-- Satellite images: NASA GIBS WMS, VIIRS on Suomi NPP true colour, 11 November 2021, the day NASA’s Earth
-  Observatory showed smoke streaming from Punjab towards Delhi.
+- Wind: NASA POWER regional daily API, U50M and V50M, four tiles of at most 4.5 degrees, 15 October to 30 November
+  2016–2025, averaged per grid cell into `data/windfield.json`.
+- Field image: NASA GIBS WMS, HLS S30 and L30 true colour; small previews of each date are scored by JPEG size and
+  the best date is downloaded at 2048 px (`data/field-image.json`).
+- Satellite images: NASA GIBS WMS, VIIRS on Suomi NPP and MODIS on Terra true colour, 11 November 2021, the day
+  NASA’s Earth Observatory showed smoke streaming from Punjab towards Delhi.
 - Photograph: Wikimedia Commons, Neil Palmer (CIAT), CC BY-SA 2.0.
 
 Checks run before a file is replaced: points inside Punjab’s box, days and times in range, counts that match
@@ -100,4 +104,4 @@ The live services could not be reached from where this was built, so check the f
 
 Boundaries: INDIAN-SHAPEFILES by datta07 (MIT). Coast and rivers: Natural Earth (public domain). Fire data:
 NASA FIRMS. Wind: NASA POWER. Imagery: NASA GIBS. Photograph: Neil Palmer (CIAT), CC BY-SA 2.0. D3 and
-topojson-client: ISC. Charis SIL and Libre Franklin: SIL Open Font Licence 1.1. Text: the authors.
+topojson-client: ISC. STIX Two Text and Fira Sans: SIL Open Font Licence 1.1. Text: the authors.

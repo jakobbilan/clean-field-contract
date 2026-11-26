@@ -1,72 +1,71 @@
-"""NASA POWER: hourly wind at 50 m above Ludhiana, summarised as a 16-sector wind rose for the burning season."""
-import datetime as dt
+"""NASA POWER: daily wind components at 50 m (MERRA-2) over north-west India, averaged over the burning season.
+The result is a mean vector field on the native grid; the page draws its streamlines."""
 import json
+import time
 import urllib.parse
 
 from . import config
 from .firms import fetch_text
 
 
-def power_url(year):
-    start, end = dt.date(year, *config.WIND_START), dt.date(year, *config.WIND_END)
+def regional_url(param, year, tile):
+    lon0, lat0, lon1, lat1 = tile
     params = {
-        "parameters": "WS50M,WD50M", "community": "RE",
-        "longitude": f"{config.WIND_POINT[1]:.4f}", "latitude": f"{config.WIND_POINT[0]:.4f}",
-        "start": start.strftime("%Y%m%d"), "end": end.strftime("%Y%m%d"),
-        "format": "JSON", "time-standard": "LST",
+        "latitude-min": f"{lat0:g}", "latitude-max": f"{lat1:g}", "longitude-min": f"{lon0:g}", "longitude-max": f"{lon1:g}",
+        "parameters": param, "community": "RE",
+        "start": f"{year}{config.WIND_START[0]:02d}{config.WIND_START[1]:02d}",
+        "end": f"{year}{config.WIND_END[0]:02d}{config.WIND_END[1]:02d}", "format": "JSON",
     }
-    return config.POWER_HOURLY + "?" + urllib.parse.urlencode(params)
+    return config.POWER_REGIONAL + "?" + urllib.parse.urlencode(params)
 
 
-def parse(text):
-    """(direction from, speed) pairs; fill values (-999) dropped."""
+def parse_regional(text, param):
+    """{(lat, lon): (sum, n)} from a POWER regional GeoJSON response; fill values (-999) dropped."""
     js = json.loads(text)
-    par = js["properties"]["parameter"]
     fill = js.get("header", {}).get("fill_value", -999)
-    ws, wd = par["WS50M"], par["WD50M"]
-    pairs = []
-    for hour, d in wd.items():
-        s = ws.get(hour)
-        if d is None or s is None or d == fill or s == fill or d < 0 or s < 0:
-            continue
-        pairs.append((float(d) % 360.0, float(s)))
-    return pairs
-
-
-def rose(pairs, calm=config.WIND_CALM, sectors=16):
-    """Share of all hours by the sector the wind came from (sector 0 is centred on north); calm hours apart."""
-    width = 360.0 / sectors
-    counts, speed, calms = [0] * sectors, [0.0] * sectors, 0
-    for d, s in pairs:
-        if s < calm:
-            calms += 1
-            continue
-        i = int(((d + width / 2) % 360) // width)
-        counts[i] += 1
-        speed[i] += s
-    n = len(pairs)
-    return {
-        "hours": n,
-        "calm_share": round(calms / n, 4) if n else 0.0,
-        "sectors": [{"from_deg": round(i * width, 2), "share": round(counts[i] / n, 4) if n else 0.0,
-                     "mean_speed": round(speed[i] / counts[i], 2) if counts[i] else 0.0} for i in range(sectors)],
-    }
-
-
-def build(log=print):
-    pairs = []
-    for year in config.WIND_YEARS:
-        got = parse(fetch_text(power_url(year)))
-        log(f"  wind {year}: {len(got)} hours")
-        pairs.extend(got)
-    out = rose(pairs)
-    days = (dt.date(2001, *config.WIND_END) - dt.date(2001, *config.WIND_START)).days + 1
-    expected = days * 24 * len(config.WIND_YEARS)
-    total = sum(s["share"] for s in out["sectors"]) + out["calm_share"]
-    if out["hours"] < 0.8 * expected or abs(total - 1) > 0.01:
-        raise ValueError(f"wind summary failed checks: {out['hours']} of {expected} hours, shares sum to {total:.3f}")
-    out.update({"status": "ok", "source": "NASA POWER, MERRA-2, hourly", "height_m": 50, "place": config.WIND_PLACE,
-                "lat": config.WIND_POINT[0], "lon": config.WIND_POINT[1],
-                "window": f"{config.WIND_START[1]} Oct to {config.WIND_END[1]} Nov",
-                "years": [config.WIND_YEARS[0], config.WIND_YEARS[-1]]})
+    out = {}
+    for f in js.get("features", []):
+        lon, lat = f["geometry"]["coordinates"][:2]
+        vals = f.get("properties", {}).get("parameter", {}).get(param, {})
+        good = [float(v) for v in vals.values() if v is not None and float(v) != fill and float(v) > -900]
+        if good:
+            out[(round(float(lat), 4), round(float(lon), 4))] = (sum(good), len(good))
     return out
+
+
+def assemble(acc):
+    """acc[param][(lat, lon)] = [sum, n] -> grid of means with lats and lons ascending; None where missing."""
+    keys = set(acc[config.WIND_PARAMS[0]]) | set(acc[config.WIND_PARAMS[1]])
+    lats, lons = sorted({k[0] for k in keys}), sorted({k[1] for k in keys})
+    grid = {}
+    for p in config.WIND_PARAMS:
+        grid[p] = [[(acc[p][(la, lo)][0] / acc[p][(la, lo)][1]) if (la, lo) in acc[p] and acc[p][(la, lo)][1] else None
+                    for lo in lons] for la in lats]
+    return lats, lons, grid
+
+
+def build_field(log=print, pause=0.4):
+    acc = {p: {} for p in config.WIND_PARAMS}
+    for tile in config.WIND_TILES:
+        for p in config.WIND_PARAMS:
+            for year in config.WIND_YEARS:
+                for k, (s, n) in parse_regional(fetch_text(regional_url(p, year, tile)), p).items():
+                    cur = acc[p].setdefault(k, [0.0, 0])
+                    cur[0] += s
+                    cur[1] += n
+                time.sleep(pause)
+        log(f"  wind tile {tile}: done")
+    lats, lons, grid = assemble(acc)
+    u, v = grid["U50M"], grid["V50M"]
+    cells = len(lats) * len(lons)
+    valid = sum(1 for i in range(len(lats)) for j in range(len(lons)) if u[i][j] is not None and v[i][j] is not None)
+    if cells == 0 or valid < config.WIND_MIN_VALID * cells:
+        raise ValueError(f"wind field has {valid} of {cells} cells with data")
+    if any(abs(x) > 40 for row in u + v for x in row if x is not None):
+        raise ValueError("implausible wind speeds in the field")
+    r = lambda x: None if x is None else round(x, 3)
+    return {
+        "status": "ok", "source": "NASA POWER, MERRA-2, daily U50M and V50M", "height_m": 50,
+        "window": f"{config.WIND_START[1]} Oct to {config.WIND_END[1]} Nov", "years": [config.WIND_YEARS[0], config.WIND_YEARS[-1]],
+        "lats": lats, "lons": lons, "u": [[r(x) for x in row] for row in u], "v": [[r(x) for x in row] for row in v],
+    }

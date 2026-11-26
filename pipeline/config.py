@@ -25,11 +25,18 @@ SHRINK_TOLERANCE = 0.10                # refuse a refresh that loses more than 1
 GIBS_WMS = "https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi"
 SAT_LAYER = "VIIRS_SNPP_CorrectedReflectance_TrueColor"
 SAT_DATE = "2021-11-11"                # NASA Earth Observatory, "A shot of smoke for Delhi"
-SAT_SCENES = [
-    {"id": "wide", "bounds": [60.0, 4.0, 100.0, 40.0], "width": 2000, "height": 1800},
-    {"id": "plain", "bounds": [70.0, 25.5, 82.0, 34.5], "width": 2400, "height": 1800},
-    {"id": "punjab", "bounds": [73.3, 29.2, 77.3, 32.8], "width": 2000, "height": 1800},
+SAT_SCENES = [                         # group decides which map steps show the image
+    {"id": "wide", "group": "viirs", "layer": SAT_LAYER, "date": SAT_DATE, "bounds": [60.0, 4.0, 100.0, 40.0], "width": 2000, "height": 1800},
+    {"id": "plain", "group": "viirs", "layer": SAT_LAYER, "date": SAT_DATE, "bounds": [70.0, 25.5, 82.0, 34.5], "width": 2400, "height": 1800},
+    {"id": "punjab", "group": "modis", "layer": "MODIS_Terra_CorrectedReflectance_TrueColor", "date": SAT_DATE,
+     "bounds": [73.3, 29.2, 77.3, 32.8], "width": 2048, "height": 1843},
 ]
+# 30 m true colour around the field view: Harmonized Landsat Sentinel-2 (HLS); the clearest recent date is chosen
+FIELD_SCENE = {
+    "id": "field", "group": "hls", "bounds": [75.55, 30.05, 76.15, 30.45], "width": 2048, "height": 1365,
+    "layers": [("HLS_S30_Nadir_BRDF_Adjusted_Reflectance", "Sentinel-2"), ("HLS_L30_Nadir_BRDF_Adjusted_Reflectance", "Landsat")],
+    "first": (10, 28), "last": (11, 24), "lag_days": 4, "preview": (512, 341), "min_preview_bytes": 12000, "min_bytes": 120000,
+}
 
 # Wikimedia Commons photo (CC BY-SA 2.0)
 PHOTO = {
@@ -40,11 +47,13 @@ PHOTO = {
     "licence": "https://creativecommons.org/licenses/by-sa/2.0/",
 }
 
-# NASA POWER, hourly wind at 50 m (MERRA-2); direction is where the wind comes from, degrees clockwise from north
-POWER_HOURLY = "https://power.larc.nasa.gov/api/temporal/hourly/point"
-WIND_POINT = (30.901, 75.8573)          # latitude, longitude: Ludhiana
-WIND_PLACE = "Ludhiana"
+# NASA POWER, daily wind components at 50 m (MERRA-2), averaged over the burning season on the native grid
+POWER_REGIONAL = "https://power.larc.nasa.gov/api/temporal/daily/regional"
+WIND_PARAMS = ("U50M", "V50M")         # eastward and northward wind, m/s
+WIND_TILES = [                         # lon_min, lat_min, lon_max, lat_max; each side at most 4.5 degrees
+    (71.5, 26.5, 76.0, 30.5), (76.0, 26.5, 80.5, 30.5), (71.5, 30.5, 76.0, 34.5), (76.0, 30.5, 80.5, 34.5),
+]
 WIND_YEARS = list(range(2016, 2026))
 WIND_START = (10, 15)
 WIND_END = (11, 30)
-WIND_CALM = 0.5                         # m/s; slower hours are counted as calm
+WIND_MIN_VALID = 0.6                   # share of grid cells that must have data
