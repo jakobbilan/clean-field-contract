@@ -166,6 +166,10 @@
   }
   function viewFor(i) {
     var s = STEPS[i];
+    if (s.view === 'field' && s.photo && assets.photo) {
+      var fz = focusPoint();
+      return viewForBounds([[fz.lon - 0.035, fz.lat - 0.022], [fz.lon + 0.035, fz.lat + 0.022]], i);
+    }
     if (s.view === 'field') {
       var f = focusPoint(), v = viewForBounds([[f.lon - 0.17, f.lat - 0.105], [f.lon + 0.17, f.lat + 0.105]], i);
       if (assets.field) {                       // keep the visible part of the map inside the 30 m image where it fits
@@ -519,6 +523,11 @@
     if (!s.scrub) fireState.dayMax = SEASON_DAYS - 1;
     canvas.style.opacity = fireState.key ? 1 : 0;
     var showPhoto = !!(s.photo && assets.photo);
+    if (showPhoto && cam) {
+      var fpt = focusPoint(), sp = P(fpt.lon, fpt.lat);
+      photo.style.setProperty('--px', clamp(sp[0] / W * 100, 0, 100).toFixed(1) + '%');
+      photo.style.setProperty('--py', clamp(sp[1] / H * 100, 0, 100).toFixed(1) + '%');
+    }
     photo.classList.toggle('on', showPhoto);
     credit.classList.toggle('on-photo', showPhoto);
     var parts = [];
@@ -605,6 +614,7 @@
         root.classList.add('live-ready');
         put('countA', fmt(fires.A.total)); put('seasonB', fires.B.season); put('countB', fmt(fires.B.total));
         put('throughB', fires.B.through ? ' to ' + longDate(new Date(fires.B.through + 'T00:00:00Z')) : '');
+        if (live.updated) put('updatedLine', '; the last update ran on ' + longDate(new Date(live.updated)));
         focus = null;
         refreshStep();
         renderLive(live);
@@ -671,26 +681,25 @@
 
     clock: function (el) {
       var w = Math.max(280, el.clientWidth), narrow = w < 560, m = { l: narrow ? 8 : 116, r: 16 };
-      var rows = D.clock.years, rowH = 20, top = 58, gapR = narrow ? 70 : 56, step = rowH + gapR;
-      var yRow = function (i) { return top + i * step + (narrow ? 18 * (i + 1) : 0); };
-      var bottom = yRow(rows.length - 1) + rowH + 22, h = bottom + 40, g = frame(el, h).svg;
+      var rows = D.clock.years, rowH = 20, top = narrow ? 64 : 84, gapR = narrow ? 92 : 70, step = rowH + gapR;
+      var yRow = function (i) { return top + i * step + (narrow ? 22 : 0); };
+      var bottom = yRow(rows.length - 1) + rowH + 26, h = bottom + 40, g = frame(el, h).svg;
       var x = d3.scaleLinear().domain([6, 20]).range([m.l, w - m.r]);
-      g.append('rect').attr('x', x(15)).attr('width', x(20) - x(15)).attr('y', top - 16).attr('height', bottom - top + 22).style('fill', 'var(--ember-soft)');
-      txt(g, x(20) - 4, top - 22, 'after 15:00', null, 'end');
-      D.clock.passes.forEach(function (p) {
-        g.append('line').attr('x1', x(p.t)).attr('x2', x(p.t)).attr('y1', 18).attr('y2', bottom + 6).style('stroke', 'var(--ink)').style('stroke-width', '1.4px').style('stroke-dasharray', '3 3');
-        var first = p.t === D.clock.passes[0].t;
-        txt(g, x(p.t) + (first ? -6 : 6), 12, narrow ? p.label.slice(0, 5) : p.label, 'lab-strong', first ? 'end' : 'start');
+      g.append('rect').attr('x', x(15)).attr('width', x(20) - x(15)).attr('y', 26).attr('height', bottom - 26).style('fill', 'var(--ember-soft)');
+      txt(g, x(20) - 6, 44, 'after 15:00', null, 'end');
+      D.clock.passes.forEach(function (p, k) {
+        g.append('line').attr('x1', x(p.t)).attr('x2', x(p.t)).attr('y1', 22).attr('y2', bottom).style('stroke', 'var(--ink)').style('stroke-width', '1.4px').style('stroke-dasharray', '3 3');
+        txt(g, x(p.t) + (k ? 6 : -6), 14, narrow ? p.label.slice(0, 5) : p.label, 'lab-strong', k ? 'start' : 'end');
       });
       rows.forEach(function (r, i) {
         var y = yRow(i);
-        if (narrow) txt(g, m.l, y - 26, r.label, 'lab-strong'); else txt(g, 0, y + rowH / 2 + 4, r.label, 'lab-strong');
+        if (narrow) txt(g, m.l, y - 34, r.label, 'lab-strong'); else txt(g, 0, y + rowH / 2 + 4, r.label, 'lab-strong');
         g.append('rect').attr('x', x(6)).attr('width', x(20) - x(6)).attr('y', y).attr('height', rowH).style('fill', 'var(--rule-2)');
         g.append('rect').attr('x', x(15)).attr('width', x(20) - x(15)).attr('y', y).attr('height', rowH).style('fill', 'var(--ember)').style('fill-opacity', 0.2 + 0.65 * r.after3pm / 100);
         var share = (r.more ? 'more than ' : '') + r.after3pm + '%' + (narrow ? ' after 15:00' : ' of large fires after 15:00') + (r.shareYear ? ' (' + r.shareYear + ')' : '');
-        txt(g, narrow ? m.l : x(20) - 2, y - 7, share, 'lab-ember', narrow ? 'start' : 'end');
+        txt(g, narrow ? m.l : x(20) - 6, y - 10, share, 'lab-ember', narrow ? 'start' : 'end');
         g.append('circle').attr('cx', x(r.peak)).attr('cy', y + rowH / 2).attr('r', 6.5).style('fill', 'var(--ink)').style('stroke', 'var(--clear)').style('stroke-width', '2px');
-        txt(g, x(r.peak), y + rowH + 16, r.peakLabel, null, 'middle');
+        txt(g, x(r.peak), y + rowH + 18, r.peakLabel, null, 'middle');
       });
       [6, 9, 12, 15, 18].forEach(function (t) { txt(g, x(t), h - 8, (t < 10 ? '0' : '') + t + ':00', null, t === 6 ? 'start' : 'middle'); });
     },
@@ -812,7 +821,7 @@
         var w = Math.max(280, el.clientWidth), h = 230, m = { l: 8, r: 14, t: 22, b: 30 }, f = frame(el, h), g = f.svg;
         var x = d3.scaleLinear().domain([0, 20]).range([m.l, w - m.r]), y = d3.scaleLinear().domain([0, deaths(20)]).nice(4).range([h - m.b, m.t]);
         g.append('rect').attr('x', x(M.trialLow)).attr('width', x(M.trialHigh) - x(M.trialLow)).attr('y', m.t).attr('height', h - m.b - m.t).style('fill', 'var(--ember-soft)');
-        txt(g, x(M.trialLow) + 4, m.t + 12, 'trial at \u20b9800', 'lab-ember');
+        txt(g, x(M.trialLow) + 4, m.t + 14, '2019 trial', 'lab-ember');
         y.ticks(4).forEach(function (t) {
           g.append('line').attr('x1', m.l).attr('x2', w - m.r).attr('y1', y(t)).attr('y2', y(t)).style('stroke', t ? 'var(--rule-2)' : 'var(--rule)');
           if (t) txt(g, m.l, y(t) - 4, fmt(t) + (t === y.ticks(4).slice(-1)[0] ? ' deaths averted a year' : ''));
@@ -826,27 +835,6 @@
       };
       if (!input._wired) { input.addEventListener('input', draw); input._wired = true; }
       draw();
-    },
-
-    route: function (el) {
-      var w = Math.max(280, el.clientWidth), narrow = w < 640, rowH = narrow ? 40 : 28, top = 30, items = D.route;
-      var h = top + items.length * rowH + 12, g = frame(el, h).svg, parse = d3.utcParse('%Y-%m-%d');
-      var x = d3.scaleUtc().domain([parse('2026-11-15'), parse('2029-01-01')]).range([4, w - 4]);
-      var col = { Punjab: 'var(--field)', vote: 'var(--ink-3)', eval: 'var(--ink-2)', all: 'var(--centre)' };
-      [2027, 2028].forEach(function (yr) {
-        var xx = x(new Date(Date.UTC(yr, 0, 1)));
-        g.append('line').attr('x1', xx).attr('x2', xx).attr('y1', 6).attr('y2', h).style('stroke', 'var(--rule)');
-        txt(g, xx + 4, 16, yr, 'lab-strong');
-      });
-      if (x(new Date(Date.UTC(2027, 0, 1))) - x(parse('2026-11-15')) > 44) txt(g, x(parse('2026-11-15')), 16, '2026', 'lab-strong');
-      items.forEach(function (it, i) {
-        var x0 = x(parse(it.start)), x1 = Math.max(x(parse(it.end)), x0 + 4), y = top + i * rowH + (narrow ? 16 : 0);
-        g.append('rect').attr('x', x0).attr('width', x1 - x0).attr('y', y).attr('height', narrow ? 12 : 14).style('fill', col[it.who]);
-        var right = x1 + 8, anchor = 'start', tx = right;
-        if (narrow) { txt(g, 4, y - 4, it.label, null, 'start'); return; }
-        if (right + it.label.length * 6.4 > w) { tx = x0 - 8; anchor = 'end'; }
-        txt(g, tx, y + 11, it.label, null, anchor);
-      });
     },
 
     live: function (el) {

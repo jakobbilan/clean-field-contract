@@ -21,10 +21,20 @@ data every day during the burning season and fetches the satellite images, the p
    seasons of hourly wind and three seasons of fire detections, commits them and redeploys the page. After that
    the workflow runs every day from September to December.
 
-Before step 5 the page shows its vector map, the north-west wind sector and the official figures. If the data
+Before step 5 the page shows its vector map, schematic wind lines and the official figures. If the data
 step fails, the deploy step still publishes the page as it is; the log under Actions shows which source failed.
-GitHub pauses scheduled workflows in public repositories after 60 days without activity; re-enable the workflow
-under Actions before the next season.
+GitHub pauses scheduled workflows in public repositories after 60 days without activity. Every run writes
+`data/status.json`, so a monthly run keeps the repository active: add the line `    - cron: "0 6 1 * *"` under
+`schedule:` in `.github/workflows/site.yml`.
+
+## What updates itself
+
+| Part | How often |
+| --- | --- |
+| Fire detections on the map and the "This season" chart | Daily, 15 September to 20 December (NASA FIRMS) |
+| 30 m field image | Each season, once a clear date exists; chosen automatically |
+| Satellite overview images, wind field | Once; again only with "Download everything again" |
+| Official counts, fines and police cases quoted in the text | By hand, from the sources cited |
 
 To look at it locally: `python3 -m http.server 8000`, then open http://localhost:8000.
 

@@ -52,16 +52,6 @@ window.CFC_DATA = {
     punjabCrore: 281, centreCrore: 355, delhiCrore: 118, publicCrore: 755,
     npv: [ { label: "Cautious case", crore: 18027, bcr: 6.8 }, { label: "Indian value of a statistical life", crore: 35571, bcr: 19.1 }, { label: "Workbook central values", crore: 127279, bcr: 42.1 } ]
   },
-  // Delivery calendar (group design, Weeks 8 and 9); months are first days
-  route: [
-    { start: "2026-12-01", end: "2026-12-31", label: "Punjab notifies the scheme", who: "Punjab" },
-    { start: "2027-02-01", end: "2027-03-16", label: "Assembly election; term ends 16 March", who: "vote" },
-    { start: "2027-06-01", end: "2027-09-30", label: "Enrolment and ₹500 advances in half the villages", who: "Punjab" },
-    { start: "2027-10-01", end: "2027-11-30", label: "Harvest; satellite and field checks", who: "Punjab" },
-    { start: "2027-12-01", end: "2027-12-31", label: "₹2,000 an acre for clean fields", who: "Punjab" },
-    { start: "2028-02-01", end: "2028-03-31", label: "Evaluation against waiting villages", who: "eval" },
-    { start: "2028-06-01", end: "2028-12-31", label: "All villages join; Centre and Delhi pay", who: "all" }
-  ],
   // Places on the map
   cities: [
     { name: "Delhi", lon: 77.209, lat: 28.6139 },

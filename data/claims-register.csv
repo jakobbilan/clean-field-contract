@@ -28,32 +28,32 @@ id,where on the page,claim,value as shown,source (reference key),locator,type of
 27,Text,Yield loss from sowing wheat a week late,"about 1.5 quintals an acre, against 22",gandhi2025,p. 8 note 2,working paper (RCT),verified in project file
 28,Figure 3,Price paid per acre in 2022 (median; middle half; n),"Super Seeder 2,200 (2,000-2,500; 249); Happy Seeder 2,000 (1,775-2,400; 40); rotavator 1,750 (1,500-2,000; 58); straw removal 1,000 (700-1,500; 135)",ceew2024,"microdata, our calculation: q_308_1/2/4 = 2, q_342 = 1, q_343 = 3, q_346 >= 200; q_512 in (0, 5000]",survey microdata,26 Nov 2026 recomputed exactly
 29,Text,Fines collected per landholding estimated to have burned (Punjab 2018-19),Rs 29 (Rs 28.93),khanna2025,Table 2 p. 11,working paper,verified in project file
-30,Table: what has been tried,2015 ban: fire counts fell 30% against the pre-ban mean but faded to near zero within 2-3 years; Punjab 9.6%,30%; 9.6%,khanna2025,abstract; p. 17,working paper (difference-in-differences),26 Nov 2026 in project file
-31,Table: what has been tried,Machines handed out since 2018,at least 1.58 lakh,trib2025,article,press citing official data,verified earlier in project
-32,Table: what has been tried,No significant effect of machines on fire intensity across sub-districts,2018-2022,solomon2026,highlights; section 3,peer-reviewed (correlational),26 Nov 2026 in project file
-33,Table: what has been tried,2019 payment of Rs 100 a quintal (about Rs 2500 an acre) on self-declaration; suspended a few weeks later,qualitative,jack2025; trib2022a,footnote 7 p. 42; Tribune 27 Jul 2022 for small and marginal farmers,peer-reviewed; press,26 Nov 2026
-34,Table: what has been tried,2022 proposal Rs 1500 Centre and Rs 500 each Punjab and Delhi; Centre declined,qualitative,trib2022a; trib2022b,articles of 27 Jul and 10 Sep 2022,press,26 Nov 2026
-35,Table: what has been tried,2024 request for Rs 1200 crore declined; Centre pointed to Haryana's own-budget incentives,qualitative,trib2024,article,press,26 Nov 2026
-36,Table: what has been tried,Environmental compensation doubled by holding size,"Rs 5,000; 10,000; 30,000 per incident",pib2024,PIB release PRID 2071574 (G.S.R. 690(E) of 6 Nov 2024),official,26 Nov 2026
+30,Figure 4,2015 ban: fire counts fell 30% against the pre-ban mean but faded to near zero within 2-3 years; Punjab 9.6%,30%; 9.6%,khanna2025,abstract; p. 17,working paper (difference-in-differences),26 Nov 2026 in project file
+31,Figure 4,Machines handed out since 2018,at least 1.58 lakh,trib2025,article,press citing official data,verified earlier in project
+32,Figure 4,No significant effect of machines on fire intensity across sub-districts,2018-2022,solomon2026,highlights; section 3,peer-reviewed (correlational),26 Nov 2026 in project file
+33,Figure 4,2019 payment of Rs 100 a quintal (about Rs 2500 an acre) on self-declaration; suspended a few weeks later,qualitative,jack2025; trib2022a,footnote 7 p. 42; Tribune 27 Jul 2022 for small and marginal farmers,peer-reviewed; press,26 Nov 2026
+34,Figure 4,2022 proposal Rs 1500 Centre and Rs 500 each Punjab and Delhi; Centre declined,qualitative,trib2022a; trib2022b,articles of 27 Jul and 10 Sep 2022,press,26 Nov 2026
+35,Figure 4,2024 request for Rs 1200 crore declined; Centre pointed to Haryana's own-budget incentives,qualitative,trib2024,article,press,26 Nov 2026
+36,Figure 4,Environmental compensation doubled by holding size,"Rs 5,000; 10,000; 30,000 per incident",pib2024,PIB release PRID 2071574 (G.S.R. 690(E) of 6 Nov 2024),official,26 Nov 2026
 37,Evidence,"Trial size, place and year","1,668 farmers; 171 villages; Bathinda and Faridkot; 2019",jack2025,pp. 42-43,RCT (peer-reviewed),26 Nov 2026 in project file
 38,Evidence,Payment levels and advance shares,Rs 800 an acre (one variant Rs 1600); 25% or 50% up front,jack2025,pp. 42-43,RCT (peer-reviewed),26 Nov 2026 in project file
-39,Evidence; Figure 4,Effects on the share with no burnt plot,+7.7 (SE 3.2) and +11.5 (SE 4.2); after-verification arm +2.0 (3.0) and +0.8 (4.2); control means 9.1% and 20.2%,jack2025,Table 1 p. 48,RCT (peer-reviewed),verified in project file
+39,Evidence; Figure 5,Effects on the share with no burnt plot,+7.7 (SE 3.2) and +11.5 (SE 4.2); after-verification arm +2.0 (3.0) and +0.8 (4.2); control means 9.1% and 20.2%,jack2025,Table 1 p. 48,RCT (peer-reviewed),verified in project file
 40,Evidence,Cost per life saved,"$3,600 to $5,400",jack2025,abstract,RCT (peer-reviewed),verified in project file
 41,Evidence,Mechanism not settled: advance no better for least cash or least trust,qualitative,jack2025,p. 40; Table 2 panel A p. 49,RCT (peer-reviewed),26 Nov 2026 in project file
 42,Evidence,Authors read persistent burning as payment below farmers' full cost,qualitative,jack2025,p. 48,RCT (peer-reviewed),26 Nov 2026 in project file
-43,Term sheet,Burnt and unburnt plots look alike once tilled,qualitative,jack2025,p. 45,peer-reviewed,26 Nov 2026 in project file
-44,Term sheet,Satellite data should not be the sole basis for such decisions,qualitative,misra2026,p. 16,peer-reviewed,26 Nov 2026 in project file
-45,Term sheet; Figures 5 and 6; delivery,"Contract terms: Rs 500 advance within 3 working days, Rs 2,000 final, caps, checks, appeals, tenants, lottery, pass mark, payers from 2028",design values,design,technical documentation 19 Oct 2026; Week 7-9 design notes (half the villages by lottery: Week 9 recap),group design,26 Nov 2026
+43,Proposal; Figure 9,Burnt and unburnt plots look alike once tilled,qualitative,jack2025,p. 45,peer-reviewed,26 Nov 2026 in project file
+44,Proposal; Figure 9,Satellite data should not be the sole basis for such decisions,qualitative,misra2026,p. 16,peer-reviewed,26 Nov 2026 in project file
+45,Proposal; Figure 9; Figures 5 and 6; delivery,"Contract terms: Rs 500 advance within 3 working days, Rs 2,000 final, caps, checks, appeals, tenants, lottery, pass mark, payers from 2028",design values,design,technical documentation 19 Oct 2026; Week 7-9 design notes (half the villages by lottery: Week 9 recap),group design,26 Nov 2026
 46,Text,Rs 2500 against the median Super Seeder price,"Rs 2,200",ceew2024,microdata (row 28),survey microdata,26 Nov 2026
-47,Figure 6 note,Enrolled area and public spending at full scale,"54.04 lakh acres; Rs 755 crore: Punjab 281, Centre 355, Delhi 118",model,CBA note equations and table of who gains and who pays,group cost model,26 Nov 2026 against the note
+47,Figure 7 note,Enrolled area and public spending at full scale,"54.04 lakh acres; Rs 755 crore: Punjab 281, Centre 355, Delhi 118",model,CBA note equations and table of who gains and who pays,group cost model,26 Nov 2026 against the note
 48,Benefits and costs,Deaths averted per acre that stops burning,0.008022,model; lan2022,CBA note equation (380 per 1% over 47.37 lakh burnt acres in 2024),group cost model,26 Nov 2026 against the note
-49,Benefits and costs; Figure 7,Acres no longer burnt and deaths averted at 10 points,"5.40 lakh acres; 4,335 deaths",model,CBA note equations,group cost model,26 Nov 2026 against the note
+49,Benefits and costs; Figure 8,Acres no longer burnt and deaths averted at 10 points,"5.40 lakh acres; 4,335 deaths",model,CBA note equations,group cost model,26 Nov 2026 against the note
 50,Benefits and costs,"NPV 2027-2036 at 9.5% (cautious, Indian VSL, workbook central)","Rs 18,027; 35,571; 127,279 crore",model,CBA note results table,group cost model,26 Nov 2026 against the note
-51,Figure 7 note,Break-even effect with the workbook's central values,0.21 percentage points,model,CBA note (row O10),group cost model,26 Nov 2026 against the note
+51,Figure 8 note,Break-even effect with the workbook's central values,0.21 percentage points,model,CBA note (row O10),group cost model,26 Nov 2026 against the note
 52,Benefits and costs,Payments made even if no farmer changed behaviour,Rs 621 crore of Rs 696 crore,model,CBA note equations P0 and P2,group cost model,26 Nov 2026 against the note
 53,Benefits and costs,Public money per death averted,about Rs 17 lakh (17.4),model,CBA note cost-effectiveness row,group cost model,26 Nov 2026 against the note
-54,Figure 7,Explorer formulas,deaths = 0.008022 x 54.04 lakh acres x effect/100; public money = 679 + 7.6 x effect (Rs crore),model,CBA note P0 = 621; C1 = 58; P1 = 76 at 10 points,group cost model,26 Nov 2026 against the note
-55,Fallback table,Farmers who gave straw to a baler and also burnt some straw (2022),54 of 348,ceew2024,"microdata, our calculation: q_305_5 = 1 and (q_305_1 = 1 or q_305_2 = 1)",survey microdata,26 Nov 2026 recomputed
-56,Figure 8 note,End of the Punjab Assembly's term and expected polling window,16 March 2027; late February or early March,jagran2026,article,press,26 Nov 2026
+54,Figure 8,Explorer formulas,deaths = 0.008022 x 54.04 lakh acres x effect/100; public money = 679 + 7.6 x effect (Rs crore),model,CBA note P0 = 621; C1 = 58; P1 = 76 at 10 points,group cost model,26 Nov 2026 against the note
+55,Figure 9,Farmers who gave straw to a baler and also burnt some straw (2022),54 of 348,ceew2024,"microdata, our calculation: q_305_5 = 1 and (q_305_1 = 1 or q_305_2 = 1)",survey microdata,26 Nov 2026 recomputed
+56,Figure 9,End of the Punjab Assembly's term and expected polling window,16 March 2027; late February or early March,jagran2026,article,press,26 Nov 2026
 57,Map step 2 (after data download),Streamlines of the season-mean wind,"daily U50M and V50M on the MERRA-2 grid, 15 Oct to 30 Nov, 2016-2025",power,computed by pipeline/wind.py from the NASA POWER regional daily API; drawn as evenly spaced streamlines (laidlaw2005),reanalysis (MERRA-2),method verified against POWER documentation
 58,Map step 7 (after data download),30 m true-colour image of burn scars around the field view,date and sensor shown on the map,hls,chosen by pipeline/media.py from HLS dates 28 Oct to 24 Nov of the season,satellite imagery,method verified against GIBS and HLS documentation

@@ -57,6 +57,9 @@ def build_assets(refresh, offline, log, today=None):
             log(f"  photo skipped: {e}")
     if path.exists():
         manifest["photo"] = {"file": p["out"], "credit": p["credit"], "page": p["page"], "licence": p["licence"]}
+        for old in path.parent.glob("*.jpg"):          # an earlier photograph is removed
+            if old.name != path.name:
+                old.unlink()
     write_json(config.DATA / "assets.json", manifest)
     keep = {item["file"] for item in manifest["sat"]}
     folder = config.ROOT / "assets" / "sat"
@@ -182,12 +185,16 @@ def main(argv=None):
             write_json(field_path, wind.build_field(print))
         except Exception as e:  # the page falls back to a schematic flow and says so
             print(f"  wind field skipped: {e}")
+    ok = True
     try:
         build_fires(today, args.refresh, args.offline, print)
     except (firms.FirmsError, checks.CheckError) as e:
         print(f"Fire data not updated: {e}", file=sys.stderr)
-        return 1
-    return 0
+        ok = False
+    # written on every run: records when data last ran and keeps the repository active between seasons
+    write_json(config.DATA / "status.json", {"last_run": dt.datetime.utcnow().replace(microsecond=0).isoformat() + "Z",
+                                               "season": current_season(today), "fires": "updated" if ok else "failed"})
+    return 0 if ok else 1
 
 
 if __name__ == "__main__":

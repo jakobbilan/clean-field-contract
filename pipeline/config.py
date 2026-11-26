@@ -43,10 +43,10 @@ FIELD_SCENE = {
 
 # Wikimedia Commons photo (CC BY-SA 2.0)
 PHOTO = {
-    "commons_file": "NP_India_burning1_(6314801805).jpg",
-    "out": "assets/img/sangrur-2011-11-02.jpg",
-    "credit": "Rice straw burning near Sangrur, 2 November 2011. Photo: Neil Palmer (CIAT), CC BY-SA 2.0, via Wikimedia Commons.",
-    "page": "https://commons.wikimedia.org/wiki/File:NP_India_burning1_(6314801805).jpg",
+    "commons_file": "NP_India_burning_48_(6315309342).jpg",
+    "out": "assets/img/punjab-rice-residue-burning-2011.jpg",
+    "credit": "Burning of rice residue in south-east Punjab before the wheat season, 2011. Photo: Neil Palmer (CIAT), CC BY-SA 2.0, via Wikimedia Commons.",
+    "page": "https://commons.wikimedia.org/wiki/File:NP_India_burning_48_(6315309342).jpg",
     "licence": "https://creativecommons.org/licenses/by-sa/2.0/",
 }
 

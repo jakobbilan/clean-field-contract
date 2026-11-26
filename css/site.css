@@ -106,7 +106,8 @@ html.js .step.is-active .panel { opacity: 1; }
 .step-title { min-height: 100vh; align-items: flex-end; padding: 12vh 0 14vh; }
 .step-title h1 { margin-bottom: var(--s4); }
 .deck { font-size: 1.4rem !important; line-height: 1.35 !important; color: var(--ink-2); margin-bottom: var(--s6) !important; }
-.authors { font-family: var(--sans); font-size: 1rem !important; line-height: 1.5 !important; font-weight: 500; margin-bottom: var(--s2) !important; }
+.doc-line { font-family: var(--sans); font-size: 0.95rem !important; line-height: 1.4 !important; color: var(--ink-2); margin-bottom: var(--s4) !important; }
+.authors { font-family: var(--sans); font-size: 1rem !important; line-height: 1.5 !important; font-weight: 500; margin-bottom: var(--s3) !important; }
 .affil { font-family: var(--sans); font-size: 0.95rem !important; line-height: 1.5 !important; color: var(--ink-2); }
 .step-summary { min-height: 130vh; }
 .summary-title { font-size: 1.45rem; margin-bottom: var(--s4); }
@@ -119,8 +120,9 @@ html.js .step.is-active .panel { opacity: 1; }
 
 .stage svg, .stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .stage canvas.fires { transition: opacity 500ms ease; opacity: 0; }
-.stage .photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 800ms ease; pointer-events: none; }
-.stage .photo.on { opacity: 1; }
+.stage .photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none;
+  clip-path: circle(0% at var(--px, 50%) var(--py, 50%)); transition: clip-path 1100ms cubic-bezier(0.65, 0, 0.25, 1); }
+.stage .photo.on { clip-path: circle(150% at var(--px, 50%) var(--py, 50%)); }
 .stage .hud {
   position: absolute; right: var(--s4); top: calc(env(safe-area-inset-top, 0px) + var(--s4));
   font-family: var(--sans); font-size: 0.85rem; line-height: 1.45; color: var(--ink);
@@ -130,7 +132,7 @@ html.js .step.is-active .panel { opacity: 1; }
 .stage .hud b { font-weight: 600; }
 .hud-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--ember); margin-right: 6px; vertical-align: 0.05em; }
 .on-sat .hud-dot { background: #ffb23e; }
-.stage .credit { position: absolute; left: var(--s4); right: var(--s4); bottom: calc(env(safe-area-inset-bottom, 0px) + var(--s3)); font-family: var(--sans); font-size: 0.74rem; line-height: 1.35; color: var(--ink-2); margin: 0; }
+.stage .credit { position: absolute; left: var(--s4); right: 10rem; bottom: calc(env(safe-area-inset-bottom, 0px) + var(--s3)); font-family: var(--sans); font-size: 0.74rem; line-height: 1.35; color: var(--ink-2); margin: 0; }
 .stage.on-sat .credit, .stage .credit.on-photo { color: #f2f4f3; text-shadow: 0 0 3px rgba(0, 0, 0, 0.9); }
 
 /* map layers, all drawn in screen pixels */
@@ -250,6 +252,32 @@ table.terms tr:last-child th, table.terms tr:last-child td { border-bottom: 1px 
 .colophon h3 { font-size: 0.98rem; margin: var(--s5) 0 var(--s2); }
 .colophon h3:first-child { margin-top: 0; }
 
+/* timeline of past measures and the route diagram */
+.timeline, .route { list-style: none; margin: var(--s5) 0 0; padding: 0; }
+.timeline li, .route li { display: grid; column-gap: var(--s6); position: relative; padding-bottom: var(--s5); }
+.timeline li { grid-template-columns: 6.5rem 1fr; }
+.route li { grid-template-columns: 8.75rem 1fr; padding-bottom: var(--s6); }
+.timeline li:last-child, .route li:last-child { padding-bottom: 0; }
+.timeline li::before, .route li::before { content: ""; position: absolute; top: 0.42rem; width: 12px; height: 12px; border-radius: 50%; background: var(--clear); border: 2px solid var(--ember); z-index: 1; }
+.timeline li::before { left: calc(6.5rem + 1rem - 6px); }
+.route li::before { left: calc(8.75rem + 1rem - 6px); border-color: var(--field); }
+.timeline li:not(:last-child)::after, .route li:not(:last-child)::after { content: ""; position: absolute; top: 0.9rem; bottom: -0.42rem; width: 2px; background: var(--rule); }
+.timeline li:not(:last-child)::after { left: calc(6.5rem + 1rem - 1px); }
+.route li:not(:last-child)::after { left: calc(8.75rem + 1rem - 1px); }
+.t-when, .r-when { font-family: var(--sans); font-weight: 600; font-size: 0.93rem; line-height: 1.35; text-align: right; margin: 0; padding-top: 0.16rem; }
+.t-body p, .r-body p { margin: 0; }
+.t-what { font-family: var(--sans); font-weight: 600; font-size: 0.98rem; line-height: 1.45; margin-bottom: var(--s1) !important; }
+.t-result { font-size: 1.04rem; line-height: 1.55; color: var(--ink-2); }
+.r-what { font-weight: 600; font-size: 1.16rem; line-height: 1.35; margin-bottom: var(--s2) !important; }
+.r-body > p { font-size: 1.04rem; line-height: 1.55; }
+.r-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: var(--s3) var(--s5); margin-top: var(--s4); font-family: var(--sans); font-size: 0.9rem; line-height: 1.45; color: var(--ink-2); }
+.r-k { font-size: 0.78rem !important; font-weight: 600; color: var(--ink); margin-bottom: var(--s1) !important; }
+
+/* closing */
+.coda { padding-top: var(--s8); }
+.coda p { font-size: 1.24rem; line-height: 1.55; }
+.coda .coda-final { font-size: 1.5rem; line-height: 1.35; font-weight: 600; margin-top: var(--s6); }
+
 /* ------------------------------------------------------------ narrow screens */
 @media (max-width: 899px) {
   body { font-size: 1.125rem; }
@@ -277,6 +305,11 @@ table.terms tr:last-child th, table.terms tr:last-child td { border-bottom: 1px 
   .closing .recs li { font-size: 1.08rem; }
 }
 @media (max-width: 640px) {
+  .timeline li, .route li { grid-template-columns: 1fr; padding-left: var(--s6); }
+  .timeline li::before, .route li::before { left: 0; }
+  .timeline li:not(:last-child)::after, .route li:not(:last-child)::after { left: 5px; }
+  .t-when, .r-when { text-align: left; margin-bottom: var(--s1); }
+  .coda .coda-final { font-size: 1.3rem; }
   table.stack thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
   table.stack, table.stack tbody, table.stack tr, table.stack td { display: block; width: 100%; }
   table.stack tr { padding: var(--s4) 0; border-bottom: 1px solid var(--rule-2); }
