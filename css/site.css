@@ -213,6 +213,7 @@ html.js .step.is-active .panel { opacity: 1; }
 .chart text { font-family: var(--sans); font-size: 12.5px; fill: var(--ink-2); font-variant-numeric: tabular-nums; }
 .chart .lab-strong { fill: var(--ink); font-weight: 600; }
 .chart .lab-ember { fill: var(--ember); font-weight: 600; }
+.chart .halo { paint-order: stroke; stroke: var(--clear); stroke-width: 4px; stroke-linejoin: round; }
 
 .table-wrap { overflow-x: auto; margin-top: var(--s6); margin-bottom: var(--s6); }
 table { border-collapse: collapse; width: 100%; font-family: var(--sans); font-size: 0.93rem; line-height: 1.5; font-variant-numeric: tabular-nums; }
@@ -234,6 +235,9 @@ table.terms tr:last-child th, table.terms tr:last-child td { border-bottom: 1px 
 
 .live { margin-top: var(--s7); }
 .live h3 { margin-bottom: var(--s2); }
+.live-part { margin-top: var(--s5); }
+.live-part + .live-part { margin-top: var(--s7); padding-top: var(--s5); border-top: 1px solid var(--rule-2); }
+.live-k { font-family: var(--sans); font-weight: 600; font-size: 0.95rem; color: var(--ink); margin-bottom: var(--s1) !important; }
 .live-lede { font-family: var(--sans); font-size: 0.95rem; line-height: 1.5; color: var(--ink-2); margin-bottom: var(--s5); }
 
 .closing .recs { padding-left: 1.6rem; margin: 0 auto var(--s6); }

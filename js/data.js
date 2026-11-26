@@ -18,13 +18,12 @@ window.CFC_DATA = {
     { method: "iFOREST", season: 2022, lakhHa: 31.447, ref: "iforest2025" },
     { method: "iFOREST", season: 2025, lakhHa: 20.0, partial: "images to 27 Nov", ref: "iforest2025" }
   ],
-  // Timing of burning, local time in hours: share after 15:00 from iFOREST (SEVIRI); peak hour from Singh et al. 2025 (Current Science)
+  // Timing of burning, local time in hours: satellite passes and share after 15:00 from iFOREST (SEVIRI);
+  // peak hour from Singh et al. 2025 (Current Science)
   clock: {
-    passes: [ { t: 10.5, label: "10:30 Terra, Sentinel-2" }, { t: 13.5, label: "13:30 Aqua, VIIRS" } ],
-    years: [
-      { label: "2020 and 2021", after3pm: 3, shareYear: "2021", peak: 13.5, peakLabel: "peak about 13:30 (2020)" },
-      { label: "2024 and 2025", after3pm: 90, more: true, peak: 17, peakLabel: "peak about 17:00 (2024)" }
-    ]
+    passes: [ { t: 10.5, time: "10:30", sats: "Terra, Sentinel-2" }, { t: 13.5, time: "13:30", sats: "Aqua, VIIRS" } ],
+    peaks: [ { year: 2020, t: 13.5, label: "about 13:30" }, { year: 2024, t: 17, label: "about 17:00" } ],
+    shares: [ { label: "2021", after: 3 }, { label: "2024 and 2025", after: 90, more: true } ]
   },
   // Price paid per acre in the 2022 rice season; CEEW survey microdata, our calculation
   costs: [

@@ -9,7 +9,7 @@ import json
 import os
 import sys
 
-from . import checks, config, firms, media, wind
+from . import checks, config, firms, media, sentinel2, wind
 from .geo import Locator
 
 
@@ -185,6 +185,11 @@ def main(argv=None):
             write_json(field_path, wind.build_field(print))
         except Exception as e:  # the page falls back to a schematic flow and says so
             print(f"  wind field skipped: {e}")
+    if not args.offline:
+        try:
+            sentinel2.build(today, args.refresh, print, read_json, write_json, current_season)
+        except Exception as e:  # the page shows the Sentinel-2 chart only when its data exist
+            print(f"  Sentinel-2 burnt land skipped: {e}")
     ok = True
     try:
         build_fires(today, args.refresh, args.offline, print)

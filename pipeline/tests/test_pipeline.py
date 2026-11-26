@@ -94,3 +94,23 @@ def test_wind_field_parse_and_assemble():
     assert grid["U50M"][0] == [2.0, 2.0] and grid["V50M"][0] == [-2.0, -4.0]   # the fill value is dropped
     url = wind.regional_url("U50M", 2021, (71.5, 26.5, 76.0, 30.5))
     assert "regional" in url and "start=20211015" in url and "end=20211130" in url and "latitude-min=26.5" in url
+
+
+def test_sentinel2_request_parse_area_and_cadence():
+    import datetime as dt
+    from pipeline import sentinel2, config
+    geom = {"type": "Polygon", "coordinates": [[[75.0, 30.0], [76.0, 30.0], [76.0, 31.0], [75.0, 31.0], [75.0, 30.0]]]}
+    req = sentinel2.stats_request(geom, dt.date(2026, 9, 15), dt.date(2026, 11, 25))
+    assert req["aggregation"]["aggregationInterval"]["of"] == "P72D"
+    es = req["aggregation"]["evalscript"]
+    assert "ORBIT" in es and "bais2 > 0.90" in es and "nbr < 0.20" in es and "__" not in es
+    resp = {"data": [{"interval": {"from": "2026-09-15T00:00:00Z", "to": "2026-11-25T23:59:59Z"},
+                      "outputs": {"burnt": {"bands": {"B0": {"stats": {"min": 0, "max": 1, "mean": 0.25, "sampleCount": 1000, "noDataCount": 200}}}}}}]}
+    share, valid = sentinel2.parse_stats(resp)
+    assert share == 0.25 and valid == 800
+    a = sentinel2.area_km2(geom)                     # a 1 x 1 degree cell centred near 30.5 N is about 10,600 km2
+    assert 10400 < a < 10800
+    rec = {"computed": "2026-11-20", "to": "2026-11-19"}
+    assert not sentinel2.due(rec, dt.date(2026, 11, 26))                  # computed 6 days ago
+    assert sentinel2.due(rec, dt.date(2026, 11, 27))                      # a week later
+    assert not sentinel2.due({"computed": "2026-12-02", "to": "2026-11-30"}, dt.date(2026, 12, 20))   # finished season

@@ -60,3 +60,14 @@ WIND_YEARS = list(range(2016, 2026))
 WIND_START = (10, 15)
 WIND_END = (11, 30)
 WIND_MIN_VALID = 0.6                   # share of grid cells that must have data
+
+# Copernicus Data Space Ecosystem (CDSE): Sentinel-2 burnt land by district, an experimental weekly estimate.
+# Method after Naeher and Ziulu (2025): weekly median composites; burnt where BAIS2 > 0.90 and NBR < 0.20.
+CDSE_TOKEN = "https://identity.dataspace.copernicus.eu/auth/realms/CDSE/protocol/openid-connect/token"
+CDSE_STATS = "https://sh.dataspace.copernicus.eu/api/v1/statistics"
+S2_RES_DEG = 0.0009                    # about 90 m: one sample every 90 m keeps the share unbiased and the cost low
+S2_BAIS2_MIN = 0.90
+S2_NBR_MAX = 0.20
+S2_MAX_CLOUD = 80                      # per-scene cloud filter; clouds are also masked pixel by pixel (SCL)
+S2_EVERY_DAYS = 7                      # recompute the running season once a week
+S2_SEASON = ((9, 15), (11, 30))

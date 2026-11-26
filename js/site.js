@@ -596,6 +596,24 @@
       refreshStep();
     }).catch(function () { /* the schematic flow stays, and the page says so */ });
   }
+  var burntData = null;
+  var DNAME = { 'Firozpur': 'Ferozepur', 'Sahibzada Ajit Singh Nagar': 'S.A.S. Nagar', 'Shahid Bhagat Singh Nagar': 'S.B.S. Nagar' };
+  var SIX = {};
+  F.districts.forEach(function (f) { if (f.properties.six) SIX[f.properties.name] = 1; });
+  function loadBurnt() {
+    return getJSON('data/burnt.json').then(function (b) {
+      if (!b || b.status !== 'ok' || !b.seasons || !Object.keys(b.seasons).length) throw new Error('no burnt-land data');
+      burntData = b;
+      var yrs = Object.keys(b.seasons).sort(), cur = b.seasons[yrs[yrs.length - 1]], prev = yrs.length > 1 ? b.seasons[yrs[yrs.length - 2]] : null;
+      var sec = document.getElementById('live'), part = document.getElementById('live-burnt');
+      if (!sec || !part) return;
+      sec.hidden = false; part.hidden = false;
+      part.querySelector('.burnt-lede').textContent = 'Sentinel-2 shows a burn scar at least once this season, 15 September to ' +
+        longDate(new Date(cur.to + 'T00:00:00Z')) + ', on about ' + Math.round(cur.state_share * 100) + '% of Punjab’s cloud-free land' +
+        (prev ? ', against about ' + Math.round(prev.state_share * 100) + '% over the whole of ' + yrs[yrs.length - 2] + '.' : '.');
+      renderChart(part.querySelector('[data-chart="burnt"]'));
+    }).catch(function () { /* the chart stays hidden until the weekly estimate exists */ });
+  }
   function prepSeason(js, names) {
     var ix = {};
     js.cols.forEach(function (c, i) { ix[c] = i; });
@@ -680,28 +698,44 @@
     },
 
     clock: function (el) {
-      var w = Math.max(280, el.clientWidth), narrow = w < 560, m = { l: narrow ? 8 : 116, r: 16 };
-      var rows = D.clock.years, rowH = 20, top = narrow ? 64 : 84, gapR = narrow ? 92 : 70, step = rowH + gapR;
-      var yRow = function (i) { return top + i * step + (narrow ? 22 : 0); };
-      var bottom = yRow(rows.length - 1) + rowH + 26, h = bottom + 40, g = frame(el, h).svg;
-      var x = d3.scaleLinear().domain([6, 20]).range([m.l, w - m.r]);
-      g.append('rect').attr('x', x(15)).attr('width', x(20) - x(15)).attr('y', 26).attr('height', bottom - 26).style('fill', 'var(--ember-soft)');
-      txt(g, x(20) - 6, 44, 'after 15:00', null, 'end');
-      D.clock.passes.forEach(function (p, k) {
-        g.append('line').attr('x1', x(p.t)).attr('x2', x(p.t)).attr('y1', 22).attr('y2', bottom).style('stroke', 'var(--ink)').style('stroke-width', '1.4px').style('stroke-dasharray', '3 3');
-        txt(g, x(p.t) + (k ? 6 : -6), 14, narrow ? p.label.slice(0, 5) : p.label, 'lab-strong', k ? 'start' : 'end');
+      var K = D.clock, w = Math.max(280, el.clientWidth), narrow = w < 560;
+      var padL = narrow ? 2 : 128, padR = 12, x = d3.scaleLinear().domain([6, 21]).range([padL, w - padR]);
+      var shadeTop = narrow ? 44 : 60, axisY = shadeTop + 66, bTitle = axisY + 62, rowGap = narrow ? 58 : 46;
+      var bRow = function (i) { return bTitle + 26 + i * rowGap + (narrow ? 16 : 0); };
+      var h = bRow(K.shares.length - 1) + 24, g = frame(el, h).svg;
+      // top: one day, the satellite passes, and where the peak of burning went
+      txt(g, 0, 14, 'When large fires burn', 'lab-strong');
+      g.append('rect').attr('x', x(15)).attr('width', x(21) - x(15)).attr('y', shadeTop).attr('height', axisY - shadeTop).style('fill', 'var(--ember-soft)');
+      txt(g, x(21) - 6, shadeTop + 16, narrow ? 'after 15:00' : 'after 15:00: no counting satellite overhead', null, 'end');
+      K.passes.forEach(function (p) {
+        g.append('line').attr('x1', x(p.t)).attr('x2', x(p.t)).attr('y1', shadeTop - 6).attr('y2', axisY).style('stroke', 'var(--ink-2)').style('stroke-width', '1.3px').style('stroke-dasharray', '3 3');
+        txt(g, x(p.t), narrow ? shadeTop - 12 : shadeTop - 26, p.time + (narrow ? '' : ' pass'), 'lab-strong', 'middle');
+        if (!narrow) txt(g, x(p.t), shadeTop - 12, p.sats, null, 'middle');
       });
-      rows.forEach(function (r, i) {
-        var y = yRow(i);
-        if (narrow) txt(g, m.l, y - 34, r.label, 'lab-strong'); else txt(g, 0, y + rowH / 2 + 4, r.label, 'lab-strong');
-        g.append('rect').attr('x', x(6)).attr('width', x(20) - x(6)).attr('y', y).attr('height', rowH).style('fill', 'var(--rule-2)');
-        g.append('rect').attr('x', x(15)).attr('width', x(20) - x(15)).attr('y', y).attr('height', rowH).style('fill', 'var(--ember)').style('fill-opacity', 0.2 + 0.65 * r.after3pm / 100);
-        var share = (r.more ? 'more than ' : '') + r.after3pm + '%' + (narrow ? ' after 15:00' : ' of large fires after 15:00') + (r.shareYear ? ' (' + r.shareYear + ')' : '');
-        txt(g, narrow ? m.l : x(20) - 6, y - 10, share, 'lab-ember', narrow ? 'start' : 'end');
-        g.append('circle').attr('cx', x(r.peak)).attr('cy', y + rowH / 2).attr('r', 6.5).style('fill', 'var(--ink)').style('stroke', 'var(--clear)').style('stroke-width', '2px');
-        txt(g, x(r.peak), y + rowH + 18, r.peakLabel, null, 'middle');
+      g.append('line').attr('x1', x(6)).attr('x2', x(21)).attr('y1', axisY).attr('y2', axisY).style('stroke', 'var(--ink-3)').style('stroke-width', '1px');
+      [6, 9, 12, 15, 18, 21].forEach(function (t) {
+        g.append('line').attr('x1', x(t)).attr('x2', x(t)).attr('y1', axisY).attr('y2', axisY + 5).style('stroke', 'var(--ink-3)');
+        txt(g, x(t), axisY + 19, (t < 10 ? '0' : '') + t + ':00', null, t === 6 ? 'start' : t === 21 ? 'end' : 'middle');
       });
-      [6, 9, 12, 15, 18].forEach(function (t) { txt(g, x(t), h - 8, (t < 10 ? '0' : '') + t + ':00', null, t === 6 ? 'start' : 'middle'); });
+      var p0 = K.peaks[0], p1 = K.peaks[1], ay = axisY - 22;
+      g.append('path').attr('d', 'M' + (x(p0.t) + 9) + ',' + ay + 'L' + (x(p1.t) - 11) + ',' + ay).style('stroke', 'var(--ember)').style('stroke-width', '2px').style('fill', 'none');
+      g.append('path').attr('d', 'M' + (x(p1.t) - 18) + ',' + (ay - 5) + 'L' + (x(p1.t) - 9) + ',' + ay + 'L' + (x(p1.t) - 18) + ',' + (ay + 5)).style('stroke', 'var(--ember)').style('stroke-width', '2px').style('fill', 'none');
+      K.peaks.forEach(function (pk, k) {
+        g.append('circle').attr('cx', x(pk.t)).attr('cy', ay).attr('r', 6).style('fill', k ? 'var(--ember)' : 'var(--clear)').style('stroke', 'var(--ember)').style('stroke-width', '2px');
+        var label = narrow ? pk.year + ' peak' : pk.year + ' peak, ' + pk.label;
+        txt(g, x(pk.t) + (k ? 12 : -12), ay - 10, label, 'lab-ember halo', k ? 'start' : 'end');
+      });
+      // bottom: the share of large fires after 15:00
+      txt(g, 0, bTitle, 'Share of large fires that burned after 15:00', 'lab-strong');
+      K.shares.forEach(function (r, i) {
+        var y = bRow(i), xa = x(6) + (x(21) - x(6)) * (1 - r.after / 100), barH = 22;
+        if (narrow) txt(g, 0, y - 6, r.label, 'lab-strong'); else txt(g, 0, y + barH / 2 + 4, r.label, 'lab-strong');
+        g.append('rect').attr('x', x(6)).attr('width', xa - x(6) - 1).attr('y', y).attr('height', barH).style('fill', 'var(--rule-2)');
+        g.append('rect').attr('x', xa).attr('width', x(21) - xa).attr('y', y).attr('height', barH).style('fill', 'var(--ember)');
+        var lab = (r.more ? 'more than ' : '') + r.after + '% after 15:00';
+        if (r.after >= 50) txt(g, xa + 8, y + barH / 2 + 4.5, lab, null, 'start').style('fill', '#ffffff').style('font-weight', 600);
+        else txt(g, xa - 8, y + barH / 2 + 4.5, lab, 'lab-ember', 'end');
+      });
     },
 
     costs: function (el) {
@@ -837,6 +871,37 @@
       draw();
     },
 
+    burnt: function (el) {
+      var B = burntData; if (!B) return;
+      var yrs = Object.keys(B.seasons).sort(), cur = B.seasons[yrs[yrs.length - 1]], prev = yrs.length > 1 ? B.seasons[yrs[yrs.length - 2]] : null;
+      var prevBy = {};
+      if (prev) prev.districts.forEach(function (d) { prevBy[d.name] = d.share; });
+      var rows = cur.districts.slice().sort(function (a, b) { return b.share - a.share; });
+      var w = Math.max(280, el.clientWidth), narrow = w < 560, labelW = narrow ? 112 : 150, rowH = 21, top = narrow ? 48 : 34;
+      var h = top + rows.length * rowH + 26, g = frame(el, h).svg;
+      var maxv = d3.max(rows.map(function (d) { return Math.max(d.share, prevBy[d.name] || 0); })) || 0.01;
+      var x = d3.scaleLinear().domain([0, maxv]).nice(4).range([labelW, w - 42]);
+      x.ticks(4).forEach(function (t) {
+        g.append('line').attr('x1', x(t)).attr('x2', x(t)).attr('y1', top - 6).attr('y2', h - 22).style('stroke', t ? 'var(--rule-2)' : 'var(--rule)');
+        txt(g, x(t), h - 6, Math.round(t * 100) + '%', null, 'middle');
+      });
+      var y0 = yrs[yrs.length - 1];
+      g.append('rect').attr('x', labelW).attr('y', 6).attr('width', 12).attr('height', 9).style('fill', 'var(--ember)');
+      txt(g, labelW + 18, 15, y0 + ', to ' + shortDate(new Date(cur.to + 'T00:00:00Z')));
+      if (prev) {
+        var lx = narrow ? labelW : labelW + 160, ly = narrow ? 30 : 15;
+        g.append('rect').attr('x', lx).attr('y', ly - 6).attr('width', 12).attr('height', 4).style('fill', 'var(--ink-3)');
+        txt(g, lx + 18, ly, yrs[yrs.length - 2] + ', whole season');
+      }
+      rows.forEach(function (d, i) {
+        var y = top + i * rowH;
+        txt(g, labelW - 8, y + 10, DNAME[d.name] || d.name, d.share >= 0 && SIX[d.name] ? 'lab-strong' : null, 'end');
+        g.append('rect').attr('x', labelW).attr('y', y + 1).attr('width', Math.max(1, x(d.share) - labelW)).attr('height', 11).style('fill', 'var(--ember)');
+        if (prevBy[d.name] != null) g.append('rect').attr('x', labelW).attr('y', y + 14).attr('width', Math.max(1, x(prevBy[d.name]) - labelW)).attr('height', 3).style('fill', 'var(--ink-3)');
+        txt(g, x(d.share) + 6, y + 10, Math.round(d.share * 100) + '%');
+      });
+    },
+
     live: function (el) {
       var live = fires.meta; if (!live || !live.cumulative) return;
       var w = Math.max(280, el.clientWidth), h = 230, m = { l: 8, r: 120, t: 14, b: 26 }, g = frame(el, h).svg;
@@ -847,7 +912,7 @@
         g.append('line').attr('x1', m.l).attr('x2', w - m.r).attr('y1', y(t)).attr('y2', y(t)).style('stroke', t ? 'var(--rule-2)' : 'var(--rule)');
         if (t) txt(g, m.l, y(t) - 4, fmt(t));
       });
-      [0, 16, 47, 76].forEach(function (d) { txt(g, x(d), h - 8, shortDate(seasonDate(2001, d)), null, d ? (d === 76 ? 'end' : 'middle') : 'start'); });
+      (w < 420 ? [0, 47, 76] : [0, 16, 47, 76]).forEach(function (d) { txt(g, x(d), h - 8, shortDate(seasonDate(2001, d)), null, d ? (d === 76 ? 'end' : 'middle') : 'start'); });
       var line = d3.line().x(function (d, i) { return x(i); }).y(function (d) { return y(d); });
       [[cmp, 'var(--ink-3)', '4 3'], [cur, 'var(--ember)', null]].forEach(function (s) {
         g.append('path').attr('d', line(s[0].values)).style('fill', 'none').style('stroke', s[1]).style('stroke-width', '2.2px').style('stroke-dasharray', s[2]);
@@ -858,13 +923,13 @@
   };
 
   function renderLive(live) {
-    var sec = document.getElementById('live');
-    if (!sec || !live.cumulative) return;
+    var sec = document.getElementById('live'), part = document.getElementById('live-fires');
+    if (!sec || !part || !live.cumulative) return;
     var c = live.cumulative;
-    sec.hidden = false;
-    sec.querySelector('.live-lede').textContent = 'Satellite fire detections in Punjab since 15 September ' + c.current.season + ': ' + fmt(c.current.total) +
+    sec.hidden = false; part.hidden = false;
+    part.querySelector('.live-lede').textContent = 'Satellite fire detections in Punjab since 15 September ' + c.current.season + ': ' + fmt(c.current.total) +
       '. By the same date in ' + c.compare.season + ': ' + fmt(c.compare.toDate) + '. Updated ' + (live.updated ? longDate(new Date(live.updated)) : '') + '.';
-    renderChart(sec.querySelector('[data-chart="live"]'));
+    renderChart(part.querySelector('[data-chart="live"]'));
   }
   function renderChart(el) {
     var fn = charts[el.getAttribute('data-chart')];
@@ -927,4 +992,5 @@
   wireShare();
   updateAir();
   if (mapOK) { loadAssets(); loadWindField(); loadFires(); }
+  loadBurnt();
 })();

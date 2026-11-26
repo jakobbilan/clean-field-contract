@@ -27,12 +27,34 @@ GitHub pauses scheduled workflows in public repositories after 60 days without a
 `data/status.json`, so a monthly run keeps the repository active: add the line `    - cron: "0 6 1 * *"` under
 `schedule:` in `.github/workflows/site.yml`.
 
+## Sentinel-2 burnt land (optional)
+
+The page can show, each week of the season, the share of each district's cloud-free land with a burn scar on
+Sentinel-2: the way the contract would check fields, rather than the fire count. It is an experimental estimate
+(weekly median composites; burnt where BAIS2 > 0.90 and NBR < 0.20, after Naeher and Ziulu 2025). To switch it on:
+
+1. Register for free at https://dataspace.copernicus.eu.
+2. Open the Sentinel Hub dashboard at https://shapps.dataspace.copernicus.eu/dashboard/, go to User settings and
+   create an OAuth client. Copy the client ID and the secret (the secret is shown only once).
+3. In the repository, add two secrets under Settings, Secrets and variables, Actions: `CDSE_CLIENT_ID` and
+   `CDSE_CLIENT_SECRET`.
+4. In `.github/workflows/site.yml`, add two lines under `env:` of the step "Build data", next to `FIRMS_MAP_KEY`:
+   ```
+             CDSE_CLIENT_ID: ${{ secrets.CDSE_CLIENT_ID }}
+             CDSE_CLIENT_SECRET: ${{ secrets.CDSE_CLIENT_SECRET }}
+   ```
+
+Each run requests 22 district statistics for the running season once a week, and the previous season once. By our
+estimate that uses about 1,000 to 2,000 processing units a run, against a free quota of 10,000 a month; the
+dashboard shows the actual use. Without the secrets the step is skipped and the chart stays hidden.
+
 ## What updates itself
 
 | Part | How often |
 | --- | --- |
 | Fire detections on the map and the "This season" chart | Daily, 15 September to 20 December (NASA FIRMS) |
 | 30 m field image | Each season, once a clear date exists; chosen automatically |
+| Sentinel-2 burnt land by district | Weekly, 15 September to 30 November, once the CDSE secrets are set |
 | Satellite overview images, wind field | Once; again only with "Download everything again" |
 | Official counts, fines and police cases quoted in the text | By hand, from the sources cited |
 
