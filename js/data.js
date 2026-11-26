@@ -75,5 +75,5 @@ window.CFC_DATA = {
     { name: "Sangrur", lon: 75.8421, lat: 30.2458 }
   ],
   // Field view: the area of the 30 m satellite image (same bounds as FIELD_SCENE in pipeline/config.py)
-  field: { bounds: [75.55, 30.05, 76.15, 30.45] }
+  field: { bounds: [75.35, 29.95, 76.35, 30.55] }
 };

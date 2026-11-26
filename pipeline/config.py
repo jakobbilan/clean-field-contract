@@ -25,17 +25,20 @@ SHRINK_TOLERANCE = 0.10                # refuse a refresh that loses more than 1
 GIBS_WMS = "https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi"
 SAT_LAYER = "VIIRS_SNPP_CorrectedReflectance_TrueColor"
 SAT_DATE = "2021-11-11"                # NASA Earth Observatory, "A shot of smoke for Delhi"
-SAT_SCENES = [                         # group decides which map steps show the image
-    {"id": "wide", "group": "viirs", "layer": SAT_LAYER, "date": SAT_DATE, "bounds": [60.0, 4.0, 100.0, 40.0], "width": 2000, "height": 1800},
-    {"id": "plain", "group": "viirs", "layer": SAT_LAYER, "date": SAT_DATE, "bounds": [70.0, 25.5, 82.0, 34.5], "width": 2400, "height": 1800},
-    {"id": "punjab", "group": "modis", "layer": "MODIS_Terra_CorrectedReflectance_TrueColor", "date": SAT_DATE,
-     "bounds": [73.3, 29.2, 77.3, 32.8], "width": 2048, "height": 1843},
+MODIS_LAYER = "MODIS_Terra_CorrectedReflectance_TrueColor"
+BLUE_MARBLE = "BlueMarble_NextGeneration"     # static, cloud-free MODIS composite (2004); no date
+SAT_SCENES = [                                 # group decides which map steps show the image; scenes are larger than any view
+    {"id": "bm-wide", "group": "bm", "layer": BLUE_MARBLE, "date": None, "bounds": [40.0, -12.0, 125.0, 50.0], "width": 2400, "height": 1751},
+    {"id": "bm-north", "group": "bm", "layer": BLUE_MARBLE, "date": None, "bounds": [60.0, 15.0, 98.0, 41.0], "width": 2400, "height": 1642},
+    {"id": "plain", "group": "viirs", "layer": SAT_LAYER, "date": SAT_DATE, "bounds": [66.5, 22.5, 85.5, 37.5], "width": 2400, "height": 1895},
+    {"id": "punjab", "group": "modis", "layer": MODIS_LAYER, "date": SAT_DATE, "bounds": [71.0, 27.6, 79.4, 34.2], "width": 2400, "height": 1886},
+    {"id": "six", "group": "modis", "layer": MODIS_LAYER, "date": SAT_DATE, "bounds": [74.2, 29.3, 77.4, 31.7], "width": 2048, "height": 1536},
 ]
 # 30 m true colour around the field view: Harmonized Landsat Sentinel-2 (HLS); the clearest recent date is chosen
 FIELD_SCENE = {
-    "id": "field", "group": "hls", "bounds": [75.55, 30.05, 76.15, 30.45], "width": 2048, "height": 1365,
+    "id": "field", "group": "hls", "bounds": [75.35, 29.95, 76.35, 30.55], "width": 2048, "height": 1229,
     "layers": [("HLS_S30_Nadir_BRDF_Adjusted_Reflectance", "Sentinel-2"), ("HLS_L30_Nadir_BRDF_Adjusted_Reflectance", "Landsat")],
-    "first": (10, 28), "last": (11, 24), "lag_days": 4, "preview": (512, 341), "min_preview_bytes": 12000, "min_bytes": 120000,
+    "first": (10, 28), "last": (11, 24), "lag_days": 4, "preview": (512, 307), "min_preview_bytes": 12000, "min_bytes": 120000,
 }
 
 # Wikimedia Commons photo (CC BY-SA 2.0)

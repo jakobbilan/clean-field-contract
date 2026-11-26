@@ -68,8 +68,11 @@ def test_cumulative():
 
 
 def test_media_urls():
-    url = media.wms_url(config.SAT_SCENES[2])
-    assert "BBOX=73.3%2C29.2%2C77.3%2C32.8" in url and "SRS=EPSG%3A4326" in url and "TIME=2021-11-11" in url
+    punjab = [sc for sc in config.SAT_SCENES if sc["id"] == "punjab"][0]
+    url = media.wms_url(punjab)
+    assert "BBOX=71%2C27.6%2C79.4%2C34.2" in url and "SRS=EPSG%3A4326" in url and "TIME=2021-11-11" in url
+    bm = [sc for sc in config.SAT_SCENES if sc["group"] == "bm"][0]
+    assert "TIME=" not in media.wms_url(bm)         # the static Blue Marble layer takes no date
     assert media.commons_url("NP_India_burning1_(6314801805).jpg").endswith("NP_India_burning1_%286314801805%29.jpg")
 
 

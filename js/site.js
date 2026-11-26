@@ -42,7 +42,7 @@
   });
   var india = IN ? IN.outline : null, indiaStates = IN ? IN.states : null;
   var riversFC = { type: 'FeatureCollection', features: F.rivers };
-  var FIELD = (D.field && D.field.bounds) || [75.55, 30.05, 76.15, 30.45];
+  var FIELD = (D.field && D.field.bounds) || [75.35, 29.95, 76.35, 30.55];
   var put = function (k, v) { document.querySelectorAll('[data-live="' + k + '"]').forEach(function (el) { el.textContent = v; }); };
 
   /* ------------------------------------------------------------ stage: everything is drawn in screen pixels, every frame */
@@ -71,15 +71,15 @@
   };
   var WIDE_LINES = ['indiaStates', 'indiaLine'];
   var STEPS = [
-    { view: 'wide', sat: 'viirs', layers: ['land', 'indiaFill', 'punjabFill'].concat(WIDE_LINES), labels: 'wide' },
-    { view: 'north', sat: 'viirs', layers: ['land', 'indiaFill', 'punjabFill', 'rivers'].concat(WIDE_LINES), labels: 'north' },
-    { view: 'plain', sat: 'viirs', layers: ['land', 'indiaFill', 'rivers', 'punjabLine'].concat(WIDE_LINES), labels: 'plain', wind: true },
-    { view: 'plain', sat: 'viirs', layers: ['land', 'indiaFill', 'rivers', 'punjabFill', 'punjabLine'].concat(WIDE_LINES), labels: 'plain' },
-    { view: 'punjab', sat: 'modis', dim: true, layers: ['land', 'indiaFill', 'pbBase', 'rivers', 'states', 'districts', 'punjabLine', 'indiaLine'], labels: 'punjab', fires: 'A', scrub: true, grat: 1 },
-    { view: 'punjab', sat: 'modis', dim: true, layers: ['land', 'indiaFill', 'pbBase', 'rivers', 'states', 'districts', 'punjabLine', 'indiaLine'], labels: 'punjab', fires: 'B', scrub: true, grat: 1 },
-    { view: 'six', sat: 'modis', dim: true, layers: ['land', 'indiaFill', 'pbBase', 'six', 'states', 'districts', 'sixLine', 'punjabLine', 'indiaLine'], labels: 'six', fires: 'B', grat: 0.5, inset: true },
-    { view: 'field', sat: 'hls', layers: ['land', 'pbBase', 'districts'], labels: 'none', fires: 'B', grat: 0.1, focus: true, inset: true },
-    { view: 'field', sat: 'hls', layers: ['land', 'pbBase', 'districts'], labels: 'none', fires: 'B', grat: 0.1, focus: true, inset: true, photo: true }
+    { view: 'wide', sat: ['bm', 'viirs'], layers: ['land', 'indiaFill', 'punjabFill'].concat(WIDE_LINES), labels: 'wide' },
+    { view: 'north', sat: ['bm', 'viirs'], layers: ['land', 'indiaFill', 'punjabFill', 'rivers'].concat(WIDE_LINES), labels: 'north' },
+    { view: 'plain', sat: ['viirs'], layers: ['land', 'indiaFill', 'rivers', 'punjabLine'].concat(WIDE_LINES), labels: 'plain', wind: true },
+    { view: 'plain', sat: ['viirs'], layers: ['land', 'indiaFill', 'rivers', 'punjabFill', 'punjabLine'].concat(WIDE_LINES), labels: 'plain' },
+    { view: 'punjab', sat: ['modis'], dim: true, layers: ['land', 'indiaFill', 'pbBase', 'rivers', 'states', 'districts', 'punjabLine', 'indiaLine'], labels: 'punjab', fires: 'A', scrub: true, grat: 1 },
+    { view: 'punjab', sat: ['modis'], dim: true, layers: ['land', 'indiaFill', 'pbBase', 'rivers', 'states', 'districts', 'punjabLine', 'indiaLine'], labels: 'punjab', fires: 'B', scrub: true, grat: 1 },
+    { view: 'six', sat: ['modis'], dim: true, layers: ['land', 'indiaFill', 'pbBase', 'six', 'states', 'districts', 'sixLine', 'punjabLine', 'indiaLine'], labels: 'six', fires: 'B', grat: 0.5, inset: true },
+    { view: 'field', sat: ['hls'], layers: ['land', 'pbBase', 'districts'], labels: 'none', fires: 'B', grat: 0.1, focus: true, inset: true },
+    { view: 'field', sat: ['hls'], layers: ['land', 'pbBase', 'districts'], labels: 'none', fires: 'B', grat: 0.1, focus: true, inset: true, photo: true }
   ];
   var LAYER_DEFS = [
     ['land', F.land, 'base', 'm-land'],
@@ -150,9 +150,14 @@
     dimRect.attr('width', W).attr('height', H);
     applyView(active >= 0 ? viewFor(active) : viewForBounds(BOUNDS.wide));
   }
-  function viewForBounds(b) {
+  function panelSpace(i) {
+    if (!narrowMQ.matches || i == null || i < 0 || !stepEls[i]) return 0;
+    var pnl = stepEls[i].querySelector('.panel');
+    return pnl ? clamp(pnl.offsetHeight + 12, H * 0.3, H * 0.62) : H * 0.44;
+  }
+  function viewForBounds(b, i) {
     var mob = narrowMQ.matches;
-    var pl = W * 0.06, pr = W * 0.06, pt = H * (mob ? 0.1 : 0.08), pb = H * (mob ? 0.44 : 0.08);
+    var pl = W * 0.06, pr = W * 0.06, pt = H * (mob ? 0.1 : 0.08), pb = mob ? panelSpace(i === undefined ? active : i) : H * 0.08;
     var x0 = b[0][0] * C, x1 = b[1][0] * C, y0 = -b[1][1], y1 = -b[0][1];
     var k = Math.min((W - pl - pr) / (x1 - x0), (H - pt - pb) / (y1 - y0));
     var sx = pl + (W - pl - pr) / 2, sy = pt + (H - pt - pb) / 2;
@@ -162,9 +167,9 @@
   function viewFor(i) {
     var s = STEPS[i];
     if (s.view === 'field') {
-      var f = focusPoint(), v = viewForBounds([[f.lon - 0.2, f.lat - 0.125], [f.lon + 0.2, f.lat + 0.125]]);
+      var f = focusPoint(), v = viewForBounds([[f.lon - 0.17, f.lat - 0.105], [f.lon + 0.17, f.lat + 0.105]], i);
       if (assets.field) {                       // keep the visible part of the map inside the 30 m image where it fits
-        var b = assets.field.bounds, k = W / v[2], Hv = narrowMQ.matches ? H * 0.56 : H, shift = (H - Hv) / 2 / k;
+        var b = assets.field.bounds, k = W / v[2], Hv = H - panelSpace(i), shift = (H - Hv) / 2 / k;
         var hw = v[2] / 2, hh = Hv / k / 2, cyv = v[1] - shift;
         var xs = [b[0] * C + hw, b[2] * C - hw], ys = [-b[3] + hh, -b[1] - hh];
         v[0] = xs[0] <= xs[1] ? clamp(v[0], xs[0], xs[1]) : (b[0] + b[2]) / 2 * C;
@@ -173,7 +178,7 @@
       }
       return v;
     }
-    return viewForBounds(BOUNDS[s.view]);
+    return viewForBounds(BOUNDS[s.view], i);
   }
   function applyView(v) {
     var k = W / v[2];
@@ -204,6 +209,7 @@
     if (meta.group === 'hls') assets.field = meta;
   }
   function satAvailable(group) { return assets.sat.some(function (s) { return s.meta.group === group; }); }
+  function pickSat(prefs) { return (prefs || []).filter(satAvailable)[0] || null; }
   function renderSat() {
     assets.sat.forEach(function (s) {
       if (!s.on && +s.el.style('opacity') === 0) return;
@@ -291,6 +297,7 @@
     wind.measured = measured;
     root.classList.toggle('wind-ready', measured);
     gWind.selectAll('*').remove();
+    wind.under = gWind.selectAll('path.flow-bg').data(wind.lines).enter().append('path').attr('class', 'flow-bg');
     wind.paths = gWind.selectAll('path.flow').data(wind.lines).enter().append('path').attr('class', 'flow')
       .style('stroke-width', function (l) { return measured ? (0.9 + 0.35 * clamp(d3.mean(l, function (p) { return p[2]; }), 0, 4)).toFixed(2) + 'px' : null; });
     wind.heads = gWind.selectAll('path.head').data(wind.lines).enter().append('path').attr('class', 'head');
@@ -298,11 +305,13 @@
   }
   function renderWind() {
     if (!wind.paths || !cam || +gWind.style('opacity') === 0 && !(active >= 0 && STEPS[active].wind)) return;
-    wind.paths.attr('d', function (l) {
+    var line = function (l) {
       var s = '';
       for (var i = 0; i < l.length; i += 2) { var p = P(l[i][0], l[i][1]); s += (i ? 'L' : 'M') + p[0].toFixed(1) + ',' + p[1].toFixed(1); }
       return s;
-    });
+    };
+    wind.under.attr('d', line);
+    wind.paths.attr('d', line);
     wind.heads.attr('d', function (l) {
       var a = P(l[l.length - 3][0], l[l.length - 3][1]), b = P(l[l.length - 1][0], l[l.length - 1][1]);
       var ang = Math.atan2(b[1] - a[1], b[0] - a[0]), r = 6;
@@ -456,8 +465,9 @@
     var set = fireState.key ? fires[fireState.key] : null;
     if (!set) return;
     var onSat = stageEl.classList.contains('on-sat');
-    var k = cam.k, tx = cam.tx, ty = cam.ty, r = clamp(k / 300, 1.2, 4.5), dmax = fireState.dayMax, i, p, x, y, pts = set.pts;
-    ctx.globalAlpha = onSat ? 0.95 : 0.8;
+    var k = cam.k, tx = cam.tx, ty = cam.ty, dmax = fireState.dayMax, i, p, x, y, pts = set.pts;
+    var dense = pts.length > 30000 ? 0.62 : pts.length > 8000 ? 0.8 : 1, r = clamp(k / 300, 1.2, 4.5) * dense;
+    ctx.globalAlpha = (onSat ? 0.95 : 0.8) * (dense < 1 ? 0.85 : 1);
     ctx.fillStyle = onSat ? '#ffb23e' : (tok('--ember') || '#b8371a');
     ctx.beginPath();
     for (i = 0; i < pts.length; i++) {
@@ -494,13 +504,13 @@
     if (i === active) return;
     active = i;
     stepEls.forEach(function (el, j) { el.classList.toggle('is-active', j === i); });
-    var s = STEPS[i], satOn = !!(s.sat && satAvailable(s.sat));
+    var s = STEPS[i], satGroup = pickSat(s.sat), satOn = !!satGroup;
     stageEl.classList.toggle('on-sat', satOn);
     var want = {};
     s.layers.forEach(function (n) { if (!(satOn && COVERED_BY_SAT[n])) want[n] = 1; });
     Object.keys(layers).forEach(function (n) { setLayer(n, !!want[n]); });
     assets.sat.forEach(function (sat) {
-      var on = satOn && sat.meta.group === s.sat;
+      var on = satOn && sat.meta.group === satGroup;
       if (on !== sat.on) { sat.on = on; fade(sat.el, on, 650); }
     });
     fade(dimRect, satOn && s.dim, 500);
@@ -515,9 +525,11 @@
     if (showPhoto) parts.push(assets.photo.credit);
     else {
       if (satOn) {
-        var m = assets.sat.filter(function (x) { return x.meta.group === s.sat; }).pop().meta;
-        parts.push(m.group === 'hls' ? 'Image: NASA HLS ' + (m.sensor || '') + ', ' + longDate(new Date(m.date + 'T00:00:00Z')) + ', via NASA GIBS.'
-          : 'Image: NASA GIBS, ' + (m.group === 'modis' ? 'MODIS on Terra' : 'VIIRS on Suomi NPP') + ', ' + longDate(new Date(m.date + 'T00:00:00Z')) + '.');
+        var m = assets.sat.filter(function (x) { return x.meta.group === satGroup; }).pop().meta;
+        var when = m.date ? ', ' + longDate(new Date(m.date + 'T00:00:00Z')) : '';
+        parts.push(m.group === 'hls' ? 'Image: NASA HLS, ' + (m.sensor || '') + when + ', via NASA GIBS.'
+          : m.group === 'bm' ? 'Image: NASA Blue Marble Next Generation (MODIS composite), via NASA GIBS.'
+          : 'Image: NASA GIBS, ' + (m.group === 'modis' ? 'MODIS on Terra' : 'VIIRS on Suomi NPP') + when + '.');
       }
       if (s.wind) parts.push(wind.measured ? 'Wind: NASA POWER, MERRA-2.' : 'Wind lines are schematic.');
       if (fireState.key) parts.push('Fires: NASA FIRMS, VIIRS on NOAA-20.');
@@ -667,7 +679,8 @@
       txt(g, x(20) - 4, top - 22, 'after 15:00', null, 'end');
       D.clock.passes.forEach(function (p) {
         g.append('line').attr('x1', x(p.t)).attr('x2', x(p.t)).attr('y1', 18).attr('y2', bottom + 6).style('stroke', 'var(--ink)').style('stroke-width', '1.4px').style('stroke-dasharray', '3 3');
-        txt(g, x(p.t), 12, narrow ? p.label.slice(0, 5) : p.label, 'lab-strong', 'middle');
+        var first = p.t === D.clock.passes[0].t;
+        txt(g, x(p.t) + (first ? -6 : 6), 12, narrow ? p.label.slice(0, 5) : p.label, 'lab-strong', first ? 'end' : 'start');
       });
       rows.forEach(function (r, i) {
         var y = yRow(i);
@@ -675,7 +688,7 @@
         g.append('rect').attr('x', x(6)).attr('width', x(20) - x(6)).attr('y', y).attr('height', rowH).style('fill', 'var(--rule-2)');
         g.append('rect').attr('x', x(15)).attr('width', x(20) - x(15)).attr('y', y).attr('height', rowH).style('fill', 'var(--ember)').style('fill-opacity', 0.2 + 0.65 * r.after3pm / 100);
         var share = (r.more ? 'more than ' : '') + r.after3pm + '%' + (narrow ? ' after 15:00' : ' of large fires after 15:00') + (r.shareYear ? ' (' + r.shareYear + ')' : '');
-        txt(g, narrow ? m.l : x(15) + 6, y - 7, share, 'lab-ember');
+        txt(g, narrow ? m.l : x(20) - 2, y - 7, share, 'lab-ember', narrow ? 'start' : 'end');
         g.append('circle').attr('cx', x(r.peak)).attr('cy', y + rowH / 2).attr('r', 6.5).style('fill', 'var(--ink)').style('stroke', 'var(--clear)').style('stroke-width', '2px');
         txt(g, x(r.peak), y + rowH + 16, r.peakLabel, null, 'middle');
       });
@@ -752,24 +765,36 @@
     },
 
     pay: function (el) {
-      var w = Math.max(280, el.clientWidth), narrow = w < 560, m = { l: narrow ? 0 : 200, r: 10 }, rowH = 40, top = 8, gap = narrow ? 44 : 30;
-      var h = top + 2 * rowH + gap + (narrow ? 60 : 36), g = frame(el, h).svg;
-      var x = d3.scaleLinear().domain([0, 2500]).range([m.l, w - m.r]);
+      var w = Math.max(280, el.clientWidth), narrow = w < 560, labelW = narrow ? 0 : 176, barH = 36;
+      var rows = [
+        { label: ['2027 season'], segs: [{ who: 'Punjab', v: 500 }, { who: 'Punjab', v: 2000 }] },
+        { label: ['From 2028,', 'after the evaluation'], segs: [{ who: 'Punjab', v: 500 }, { who: 'Centre', v: 1500 }, { who: 'Delhi', v: 500 }] }
+      ];
       var col = { Punjab: 'var(--field)', Centre: 'var(--centre)', Delhi: 'var(--delhi)' };
-      [{ label: '2027 season', segs: [{ who: 'Punjab', v: 500, note: 'at enrolment' }, { who: 'Punjab', v: 2000, note: 'after a clean season' }] },
-       { label: 'From 2028, after the evaluation', segs: [{ who: 'Punjab', v: 500, note: 'at enrolment' }, { who: 'Centre', v: 1500 }, { who: 'Delhi', v: 500 }] }]
-        .forEach(function (r, i) {
-          var y = top + i * (rowH + gap) + (narrow ? 18 : 0), acc = 0;
-          if (narrow) txt(g, 0, y - 6, r.label, 'lab-strong'); else txt(g, 0, y + rowH / 2 + 4, r.label, 'lab-strong');
-          r.segs.forEach(function (s) {
-            var x0 = x(acc), x1 = x(acc + s.v), wide = x1 - x0 > 96;
-            g.append('rect').attr('x', x0).attr('width', Math.max(0, x1 - x0 - 2)).attr('y', y).attr('height', rowH).style('fill', col[s.who]);
-            txt(g, x0 + 6, wide ? y + rowH / 2 + 4 : y + rowH + 15, s.who + ' ' + inr(s.v)).style('fill', wide ? 'var(--clear)' : 'var(--ink)').style('font-weight', 600);
-            if (s.note && x1 - x0 > 180) txt(g, x0 + 6, y + rowH / 2 + 18, s.note).style('fill', 'var(--clear)').style('font-size', '11px');
-            acc += s.v;
-          });
+      var rowH = (narrow ? 22 : 0) + 22 + barH + 26, h = rows.length * rowH + 22;
+      var g = frame(el, h).svg, x = d3.scaleLinear().domain([0, 2500]).range([labelW, w - 2]);
+      rows.forEach(function (r, i) {
+        var top = i * rowH, y = top + (narrow ? 22 : 0) + 22;
+        if (narrow) txt(g, 0, top + 13, r.label.join(' '), 'lab-strong');
+        else r.label.forEach(function (ln, k) { txt(g, 0, y + barH / 2 + 4 + (k - (r.label.length - 1) / 2) * 16, ln, 'lab-strong'); });
+        [[0, 500, 'at enrolment'], [500, 2500, 'after a clean season']].forEach(function (n) {
+          var a = x(n[0]) + 1, b = x(n[1]) - 3;
+          g.append('path').attr('d', 'M' + a + ',' + (y - 5) + 'V' + (y - 9) + 'H' + b + 'V' + (y - 5)).style('fill', 'none').style('stroke', 'var(--ink-3)').style('stroke-width', '1px');
+          var t = txt(g, (a + b) / 2, y - 13, n[2], null, 'middle');
+          if (t.node().getComputedTextLength() > b - a + 8) t.text(n[1] === 500 ? 'advance' : 'final');
+          var half = t.node().getComputedTextLength() / 2, cx = clamp((a + b) / 2, half + 1, w - half - 1);
+          t.attr('x', cx);                    // keep the note inside the figure
         });
-      txt(g, x(2500), h - 4, '\u20b92,500 an acre in total', null, 'end');
+        var acc = 0;
+        r.segs.forEach(function (sg) {
+          var x0 = x(acc), x1 = x(acc + sg.v) - 2, mid = (x0 + x1) / 2;
+          g.append('rect').attr('x', x0).attr('width', Math.max(0, x1 - x0)).attr('y', y).attr('height', barH).style('fill', col[sg.who]);
+          var t = txt(g, mid, y + barH / 2 + 4.5, sg.who + ' ' + inr(sg.v), null, 'middle').style('font-weight', 600).style('font-size', '13px').style('fill', '#ffffff');
+          if (t.node().getComputedTextLength() > x1 - x0 - 12) t.attr('y', y + barH + 15).style('fill', 'var(--ink)').style('font-size', '12px');
+          acc += sg.v;
+        });
+      });
+      txt(g, w - 2, h - 2, '\u20b92,500 an acre in total', null, 'end');
     },
 
     explorer: function (el) {

@@ -34,7 +34,7 @@ To look at it locally: `python3 -m http.server 8000`, then open http://localhost
 | --- | --- |
 | Map story | Scrolls from South Asia to Punjab, the six districts that cause about 40% of India’s crop-smoke deaths, and a single field. Fire detections play forward day by day as you scroll. |
 | Wind | Evenly spaced, moving streamlines of the season-mean wind 50 m above ground (NASA POWER, MERRA-2, 15 October to 30 November 2016–2025). Until the data are downloaded, the lines show the prevailing north-westerly flow and are labelled as schematic. |
-| Imagery | VIIRS (11 November 2021) for the overview steps, MODIS at 250 m for the Punjab steps with fire dots on top, and a 30 m HLS image of burn scars for the field step, chosen automatically as the clearest recent date. |
+| Imagery | Blue Marble Next Generation for the two overview steps, VIIRS (11 November 2021) for the smoke steps, MODIS at 250 m for the Punjab steps with fire dots on top, and a 30 m HLS image of burn scars for the field step. Each scene is larger than any view, so the image always fills the map. |
 | Figures 1 to 4 | Counted fires against mapped burnt area; the timing of burning against satellite passes; the price of clearing a field without fire; the results of the Punjab trial |
 | Figure 5 | Calculator: what a farmer with a given number of acres would receive |
 | Figure 7 | Explorer: acres no longer burnt, deaths averted and public money at any assumed effect |
@@ -83,7 +83,8 @@ recomputed from the CEEW survey microdata; the cost figures are taken from the g
 - Wind: NASA POWER regional daily API, U50M and V50M, four tiles of at most 4.5 degrees, 15 October to 30 November
   2016–2025, averaged per grid cell into `data/windfield.json`.
 - Field image: NASA GIBS WMS, HLS S30 and L30 true colour; small previews of each date are scored by JPEG size and
-  the best date is downloaded at 2048 px (`data/field-image.json`).
+  the clearest date (least cloud and missing data, most texture, scored with Pillow) is downloaded at 2048 px
+  (`data/field-image.json`). Image file names carry a hash of area, size and layer; images no longer used are removed.
 - Satellite images: NASA GIBS WMS, VIIRS on Suomi NPP and MODIS on Terra true colour, 11 November 2021, the day
   NASA’s Earth Observatory showed smoke streaming from Punjab towards Delhi.
 - Photograph: Wikimedia Commons, Neil Palmer (CIAT), CC BY-SA 2.0.

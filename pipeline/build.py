@@ -3,6 +3,7 @@
 Needs the environment variable FIRMS_MAP_KEY (free from NASA FIRMS) for fire detections.
 Without it, imagery and the photo are still fetched and the page keeps its official figures."""
 import argparse
+import hashlib
 import datetime as dt
 import json
 import os
@@ -34,7 +35,7 @@ def build_assets(refresh, offline, log, today=None):
     today = today or dt.datetime.utcnow().date()
     manifest = {"sat": [], "photo": None}
     for scene in config.SAT_SCENES:
-        rel = f"assets/sat/{scene['group']}-{scene['date']}-{scene['id']}.jpg"
+        rel = f"assets/sat/{scene['group']}-{scene['date'] or 'static'}-{scene['id']}-{scene_key(scene)}.jpg"
         path = config.ROOT / rel
         if (refresh or not path.exists()) and not offline:
             try:
@@ -57,6 +58,17 @@ def build_assets(refresh, offline, log, today=None):
     if path.exists():
         manifest["photo"] = {"file": p["out"], "credit": p["credit"], "page": p["page"], "licence": p["licence"]}
     write_json(config.DATA / "assets.json", manifest)
+    keep = {item["file"] for item in manifest["sat"]}
+    folder = config.ROOT / "assets" / "sat"
+    for old in (folder.glob("*.jpg") if folder.exists() else []):   # images from earlier layouts are removed
+        if f"assets/sat/{old.name}" not in keep:
+            old.unlink()
+
+
+def scene_key(scene):
+    """Short hash of what defines an image, so a change of area, size or layer never reuses an old file."""
+    raw = json.dumps([scene["layer"], scene["bounds"], scene["width"], scene["height"]])
+    return hashlib.sha1(raw.encode()).hexdigest()[:6]
 
 
 def build_field_image(today, refresh, offline, log):
@@ -68,7 +80,7 @@ def build_field_image(today, refresh, offline, log):
     meta = read_json(meta_path) or {}
     season = current_season(today)
     have_season = int(meta.get("date", "0000")[:4] or 0) if meta.get("date") else 0
-    if not offline and (refresh or not existing or have_season < season):
+    if not offline and (refresh or not existing or have_season < season or meta.get("bounds") != sc["bounds"]):
         for s in (season, season - 1):
             try:
                 got = media.best_field_image(s, today, log, sc)
@@ -82,10 +94,10 @@ def build_field_image(today, refresh, offline, log):
                     if old.name != f"hls-{d.isoformat()}-field.jpg":
                         old.unlink()
                 media.save(body, config.ROOT / rel)
-                meta = {"file": rel, "date": d.isoformat(), "layer": layer, "sensor": sensor}
+                meta = {"file": rel, "date": d.isoformat(), "layer": layer, "sensor": sensor, "bounds": sc["bounds"]}
                 write_json(meta_path, meta)
                 break
-    if meta.get("file") and (config.ROOT / meta["file"]).exists():
+    if meta.get("file") and meta.get("bounds") == sc["bounds"] and (config.ROOT / meta["file"]).exists():
         return [{"id": "field", "group": "hls", "file": meta["file"], "bounds": sc["bounds"], "date": meta["date"],
                  "layer": meta["layer"], "sensor": meta["sensor"]}]
     return []
