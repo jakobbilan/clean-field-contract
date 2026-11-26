@@ -1,0 +1,84 @@
+name: Build and publish
+
+# Publishes the page with GitHub Pages (Settings, Pages, Source: GitHub Actions).
+# Pushes made with GITHUB_TOKEN do not trigger a branch-based Pages build, so this
+# workflow commits the new data and then deploys the site itself.
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "40 3 * 9-12 *"        # daily at 09:10 India time, September to December
+  workflow_dispatch:
+    inputs:
+      refresh:
+        description: "Download everything again"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  data:
+    if: github.event_name != 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install
+        run: pip install -r requirements.txt
+
+      - name: Test
+        run: python -m pytest -q pipeline/tests
+
+      - name: Build data
+        env:
+          FIRMS_MAP_KEY: ${{ secrets.FIRMS_MAP_KEY }}
+        run: python -m pipeline.build ${{ inputs.refresh && '--refresh' || '' }}
+
+      - name: Commit
+        if: ${{ !cancelled() }}            # keep whatever the build wrote, even if one source failed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data
+          if [ -d assets ]; then git add assets; fi
+          if git diff --cached --quiet; then
+            echo "No changes"
+          else
+            git commit -m "Update data ($(date -u +%Y-%m-%d))"
+            git push
+          fi
+
+  deploy:
+    needs: data
+    if: ${{ !cancelled() }}          # also runs on a push, when the data job is skipped
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}  # the branch tip, including any data just committed
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
