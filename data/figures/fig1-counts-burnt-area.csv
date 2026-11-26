@@ -1,0 +1,12 @@
+measure,method,season,value,unit,note,source_key
+fire count,official,2021,71304,fires,,pib2022
+fire count,official,2022,49922,fires,,pib2022
+fire count,official,2023,36663,fires,,pib2023
+fire count,official,2024,10909,fires,,air2025
+fire count,official,2025,5114,fires,,trib2025
+fire count,official,2026,7159,fires,to 25 Nov,nh2026
+burnt area,PRSC,2021,15.47,lakh hectares,,ht2022
+burnt area,PRSC,2023,19.14,lakh hectares,,newsdrum2025
+burnt area,PRSC,2024,19.17,lakh hectares,,newsdrum2025
+burnt area,iFOREST,2022,31.447,lakh hectares,,iforest2025
+burnt area,iFOREST,2025,20,lakh hectares,images to 27 Nov,iforest2025

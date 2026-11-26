@@ -1,0 +1,58 @@
+id,where on the page,claim,value as shown,source (reference key),locator,type of evidence,checked
+1,Summary; map step 3,Share of India's exposure to crop-fire smoke caused by fires in Punjab and Haryana,64% and 11%,lan2022,Results (exposure by state),peer-reviewed model,26 Nov 2026 against publisher text
+2,Summary,Early deaths linked to crop-residue burning in India each year,"44,000 to 98,000 (2003-2019)",lan2022,Abstract,peer-reviewed model,26 Nov 2026 against publisher text
+3,Map step 3,Share of exposure from burning after the rice harvest,nearly two-thirds (64%),lan2022,Results (pre- and post-monsoon shares),peer-reviewed model,26 Nov 2026 against publisher text
+4,Map step 6,Six Punjab districts cause about 40% of India's crop-burning health damage; Patiala and Sangrur 20%,40% and 20% (2003-2019),lan2022; dte2022,Abstract and Results; district names from Down To Earth,peer-reviewed model; press,verified earlier in project; names cross-checked
+5,Map step 6,Districts grow coarse rice varieties and lie upwind of densely populated areas,qualitative,lan2022,Results (district clusters),peer-reviewed model,verified earlier in project
+6,Map step 2,Prevailing north-westerly winds carry smoke towards Haryana and Delhi,qualitative,lan2022; hayashida,Introduction; Hayashida p. 5,peer-reviewed,26 Nov 2026
+7,Map step 2,NASA image of smoke flowing from Punjab and Haryana towards Delhi,11 November 2021,nasa2021,image caption,official imagery,verified earlier in project
+8,Map step 2,Farm fires' share of Delhi's PM2.5 on the worst day of the 2021 season,48% on 7 November 2021,pib2022,PIB release PRID 1880978,official,26 Nov 2026
+9,Summary; map step 4; Figure 1,Official count of farm fires in Punjab (15 Sep to 30 Nov),"71,304 (2021); 49,922 (2022)",pib2022,PIB release PRID 1880978,official,26 Nov 2026
+10,Map step 5; Figure 1,Official count 2023,"36,663",pib2023,PIB release PRID 1981276,official,26 Nov 2026
+11,Map step 5; Figure 1,Official count 2024,"10,909",air2025,Lok Sabha written reply reported by All India Radio,official,26 Nov 2026
+12,Summary; map step 5; Figure 1,Official count 2025,"5,114",trib2025,article; CAQM data also reported by Deccan Herald,press citing official data,26 Nov 2026
+13,Map step 5; Figure 1; text,"Count, police cases and red entries in 2026 to 25 November","7,159; 2,188; 2,295",nh2026,article of 26 Nov 2026 citing PPCB,press citing official data,26 Nov 2026
+14,Figure 1,Burnt area 2021 (Punjab Remote Sensing Centre),15.47 lakh ha,ht2022,article of 22 Nov 2022,press citing official data,verified earlier in project
+15,Figure 1,Burnt area 2023 and 2024 (Punjab Remote Sensing Centre),19.14 and 19.17 lakh ha,newsdrum2025,article,press citing official data,verified earlier in project
+16,Figure 1; text,"Burnt area in the kharif season (iFOREST, Sentinel-2) and its fall","31,447 km2 (2022); about 20,000 km2 (2025); minus 37%",iforest2025,report as reported by The Tribune and The Pioneer,think-tank analysis,26 Nov 2026
+17,Text,CEEW burnt-area change and count change 2022 to 2024,about minus 11%; minus 78%,trib2026op,opinion article citing CEEW,press citing analysis,verified earlier in project
+18,Text; Figure 2,Daytime passes of the satellites behind the official count,about 10:30 and 13:30,iforest2025,report table of sensors,think-tank analysis,verified earlier in project
+19,Text; Figure 2,Share of large Punjab fires after 15:00 (SEVIRI every 15 minutes),3% (2021); more than 90% (2024 and 2025),iforest2025,report as reported by press,think-tank analysis,26 Nov 2026
+20,Text; Figure 2,Hour of peak burning,about 13:30 (2020); about 17:00 (2024),singh2025,Current Science 129(10) as summarised by NASA Earth Observatory,peer-reviewed,26 Nov 2026
+21,Text,Separate NASA analysis finds the same shift,most fires now 4-6 pm,jethva2026; nasa2025,Remote Sensing 18; NASA Earth Observatory 15 Dec 2025,peer-reviewed; official,26 Nov 2026
+22,Text,Mixing layer deepest at 13:00-14:00 and shallower afterwards,qualitative,lan2022,Discussion,peer-reviewed model,verified earlier in project
+23,Text,Deaths averted a year if Punjab's fires burned two hours earlier,"up to 9,600 (95% CI 8,000-11,000)",lan2022,Abstract,peer-reviewed model,26 Nov 2026 against publisher text
+24,Text,Evening fires cause a stronger overnight build-up of particles,modelling result,nasa2025,NASA Earth Observatory citing Biswal et al. (2025),official summary of peer-reviewed work,26 Nov 2026
+25,Text,CAQM plans to rely on burnt-area estimates and asked states to use drones,qualitative,bs2026,article of 17 Nov 2026,press,26 Nov 2026
+26,Text,Window between rice harvest and wheat sowing,two to three weeks,lan2022,Introduction,peer-reviewed,verified earlier in project
+27,Text,Yield loss from sowing wheat a week late,"about 1.5 quintals an acre, against 22",gandhi2025,p. 8 note 2,working paper (RCT),verified in project file
+28,Figure 3,Price paid per acre in 2022 (median; middle half; n),"Super Seeder 2,200 (2,000-2,500; 249); Happy Seeder 2,000 (1,775-2,400; 40); rotavator 1,750 (1,500-2,000; 58); straw removal 1,000 (700-1,500; 135)",ceew2024,"microdata, our calculation: q_308_1/2/4 = 2, q_342 = 1, q_343 = 3, q_346 >= 200; q_512 in (0, 5000]",survey microdata,26 Nov 2026 recomputed exactly
+29,Text,Fines collected per landholding estimated to have burned (Punjab 2018-19),Rs 29 (Rs 28.93),khanna2025,Table 2 p. 11,working paper,verified in project file
+30,Table: what has been tried,2015 ban: fire counts fell 30% against the pre-ban mean but faded to near zero within 2-3 years; Punjab 9.6%,30%; 9.6%,khanna2025,abstract; p. 17,working paper (difference-in-differences),26 Nov 2026 in project file
+31,Table: what has been tried,Machines handed out since 2018,at least 1.58 lakh,trib2025,article,press citing official data,verified earlier in project
+32,Table: what has been tried,No significant effect of machines on fire intensity across sub-districts,2018-2022,solomon2026,highlights; section 3,peer-reviewed (correlational),26 Nov 2026 in project file
+33,Table: what has been tried,2019 payment of Rs 100 a quintal (about Rs 2500 an acre) on self-declaration; suspended a few weeks later,qualitative,jack2025; trib2022a,footnote 7 p. 42; Tribune 27 Jul 2022 for small and marginal farmers,peer-reviewed; press,26 Nov 2026
+34,Table: what has been tried,2022 proposal Rs 1500 Centre and Rs 500 each Punjab and Delhi; Centre declined,qualitative,trib2022a; trib2022b,articles of 27 Jul and 10 Sep 2022,press,26 Nov 2026
+35,Table: what has been tried,2024 request for Rs 1200 crore declined; Centre pointed to Haryana's own-budget incentives,qualitative,trib2024,article,press,26 Nov 2026
+36,Table: what has been tried,Environmental compensation doubled by holding size,"Rs 5,000; 10,000; 30,000 per incident",pib2024,PIB release PRID 2071574 (G.S.R. 690(E) of 6 Nov 2024),official,26 Nov 2026
+37,Evidence,"Trial size, place and year","1,668 farmers; 171 villages; Bathinda and Faridkot; 2019",jack2025,pp. 42-43,RCT (peer-reviewed),26 Nov 2026 in project file
+38,Evidence,Payment levels and advance shares,Rs 800 an acre (one variant Rs 1600); 25% or 50% up front,jack2025,pp. 42-43,RCT (peer-reviewed),26 Nov 2026 in project file
+39,Evidence; Figure 4,Effects on the share with no burnt plot,+7.7 (SE 3.2) and +11.5 (SE 4.2); after-verification arm +2.0 (3.0) and +0.8 (4.2); control means 9.1% and 20.2%,jack2025,Table 1 p. 48,RCT (peer-reviewed),verified in project file
+40,Evidence,Cost per life saved,"$3,600 to $5,400",jack2025,abstract,RCT (peer-reviewed),verified in project file
+41,Evidence,Mechanism not settled: advance no better for least cash or least trust,qualitative,jack2025,p. 40; Table 2 panel A p. 49,RCT (peer-reviewed),26 Nov 2026 in project file
+42,Evidence,Authors read persistent burning as payment below farmers' full cost,qualitative,jack2025,p. 48,RCT (peer-reviewed),26 Nov 2026 in project file
+43,Term sheet,Burnt and unburnt plots look alike once tilled,qualitative,jack2025,p. 45,peer-reviewed,26 Nov 2026 in project file
+44,Term sheet,Satellite data should not be the sole basis for such decisions,qualitative,misra2026,p. 16,peer-reviewed,26 Nov 2026 in project file
+45,Term sheet; Figures 5 and 6; delivery,"Contract terms: Rs 500 advance within 3 working days, Rs 2,000 final, caps, checks, appeals, tenants, lottery, pass mark, payers from 2028",design values,design,technical documentation 19 Oct 2026; Week 7-9 design notes (half the villages by lottery: Week 9 recap),group design,26 Nov 2026
+46,Text,Rs 2500 against the median Super Seeder price,"Rs 2,200",ceew2024,microdata (row 28),survey microdata,26 Nov 2026
+47,Figure 6 note,Enrolled area and public spending at full scale,"54.04 lakh acres; Rs 755 crore: Punjab 281, Centre 355, Delhi 118",model,CBA note equations and table of who gains and who pays,group cost model,26 Nov 2026 against the note
+48,Benefits and costs,Deaths averted per acre that stops burning,0.008022,model; lan2022,CBA note equation (380 per 1% over 47.37 lakh burnt acres in 2024),group cost model,26 Nov 2026 against the note
+49,Benefits and costs; Figure 7,Acres no longer burnt and deaths averted at 10 points,"5.40 lakh acres; 4,335 deaths",model,CBA note equations,group cost model,26 Nov 2026 against the note
+50,Benefits and costs,"NPV 2027-2036 at 9.5% (cautious, Indian VSL, workbook central)","Rs 18,027; 35,571; 127,279 crore",model,CBA note results table,group cost model,26 Nov 2026 against the note
+51,Figure 7 note,Break-even effect with the workbook's central values,0.21 percentage points,model,CBA note (row O10),group cost model,26 Nov 2026 against the note
+52,Benefits and costs,Payments made even if no farmer changed behaviour,Rs 621 crore of Rs 696 crore,model,CBA note equations P0 and P2,group cost model,26 Nov 2026 against the note
+53,Benefits and costs,Public money per death averted,about Rs 17 lakh (17.4),model,CBA note cost-effectiveness row,group cost model,26 Nov 2026 against the note
+54,Figure 7,Explorer formulas,deaths = 0.008022 x 54.04 lakh acres x effect/100; public money = 679 + 7.6 x effect (Rs crore),model,CBA note P0 = 621; C1 = 58; P1 = 76 at 10 points,group cost model,26 Nov 2026 against the note
+55,Fallback table,Farmers who gave straw to a baler and also burnt some straw (2022),54 of 348,ceew2024,"microdata, our calculation: q_305_5 = 1 and (q_305_1 = 1 or q_305_2 = 1)",survey microdata,26 Nov 2026 recomputed
+56,Figure 8 note,End of the Punjab Assembly's term and expected polling window,16 March 2027; late February or early March,jagran2026,article,press,26 Nov 2026
+57,Map step 2 (after data download),Wind rose at Ludhiana,"share of hours by direction, 50 m, 15 Oct to 30 Nov, 2016-2025",power,computed by pipeline/wind.py from NASA POWER hourly WD50M and WS50M,reanalysis (MERRA-2),method verified against POWER documentation

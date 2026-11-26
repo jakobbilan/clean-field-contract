@@ -1,0 +1,78 @@
+/* Numbers behind the figures. Each entry names its source; the keys match the reference list in index.html.
+   After editing, run: node tools/figures.mjs (rewrites the CSV files in data/figures). */
+window.CFC_DATA = {
+  // Official counts of paddy-residue burning events in Punjab, 15 September to 30 November
+  counts: [
+    { season: 2021, fires: 71304, ref: "pib2022" },
+    { season: 2022, fires: 49922, ref: "pib2022" },
+    { season: 2023, fires: 36663, ref: "pib2023" },
+    { season: 2024, fires: 10909, ref: "air2025" },
+    { season: 2025, fires: 5114, ref: "trib2025" },
+    { season: 2026, fires: 7159, partial: "to 25 Nov", ref: "nh2026" }
+  ],
+  // Burnt area in lakh hectares (1 lakh hectares = 1,000 km2)
+  burnt: [
+    { method: "PRSC", season: 2021, lakhHa: 15.47, ref: "ht2022" },
+    { method: "PRSC", season: 2023, lakhHa: 19.14, ref: "newsdrum2025" },
+    { method: "PRSC", season: 2024, lakhHa: 19.17, ref: "newsdrum2025" },
+    { method: "iFOREST", season: 2022, lakhHa: 31.447, ref: "iforest2025" },
+    { method: "iFOREST", season: 2025, lakhHa: 20.0, partial: "images to 27 Nov", ref: "iforest2025" }
+  ],
+  // Timing of burning, local time in hours: share after 15:00 from iFOREST (SEVIRI); peak hour from Singh et al. 2025 (Current Science)
+  clock: {
+    passes: [ { t: 10.5, label: "10:30 Terra, Sentinel-2" }, { t: 13.5, label: "13:30 Aqua, VIIRS" } ],
+    years: [
+      { label: "2020 and 2021", after3pm: 3, shareYear: "2021", peak: 13.5, peakLabel: "peak about 13:30 (2020)" },
+      { label: "2024 and 2025", after3pm: 90, more: true, peak: 17, peakLabel: "peak about 17:00 (2024)" }
+    ]
+  },
+  // Price paid per acre in the 2022 rice season; CEEW survey microdata, our calculation
+  costs: [
+    { route: "Super Seeder", detail: "hired with a tractor", n: 249, p25: 2000, med: 2200, p75: 2500 },
+    { route: "Happy Seeder", detail: "hired with a tractor", n: 40, p25: 1775, med: 2000, p75: 2400 },
+    { route: "Rotavator", detail: "hired with a tractor", n: 58, p25: 1500, med: 1750, p75: 2000 },
+    { route: "Straw removal", detail: "paid to an aggregator", n: 135, p25: 700, med: 1000, p75: 1500 }
+  ],
+  // Jack, Jayachandran, Kala and Pande (2025), Table 1, p. 48: effects in percentage points, standard errors
+  trial: [
+    { measure: "Satellite measure, maximum accuracy", control: 9.1, arm: "Paid only after verification", est: 2.0, se: 3.0 },
+    { measure: "Satellite measure, maximum accuracy", control: 9.1, arm: "Part paid up front", est: 7.7, se: 3.2 },
+    { measure: "Satellite measure, balanced accuracy", control: 20.2, arm: "Paid only after verification", est: 0.8, se: 4.2 },
+    { measure: "Satellite measure, balanced accuracy", control: 20.2, arm: "Part paid up front", est: 11.5, se: 4.2 }
+  ],
+  // Contract terms (group design, Weeks 7 to 9)
+  contract: { advance: 500, final: 2000, fullAcres: 10, halfToAcres: 25 },
+  // Cost model, workbook of 27 October 2026; full-scale year unless stated
+  model: {
+    enrolledLakhAcres: 54.04,          // 85% take-up of 63.58 lakh acres of non-basmati paddy
+    deathsPerAcre: 0.008022,           // 380 deaths per 1% cut (Lan et al. 2022) over 47.37 lakh burnt acres (2024)
+    publicFixedCrore: 679,             // payments that do not depend on the effect (621) plus administration (58)
+    publicPerPointCrore: 7.6,          // extra final payments per percentage point of effect
+    breakEven: 0.21, assumed: 10, passMark: 5, trialLow: 7.7, trialHigh: 11.5,
+    punjabCrore: 281, centreCrore: 355, delhiCrore: 118, publicCrore: 755,
+    npv: [ { label: "Cautious case", crore: 18027, bcr: 6.8 }, { label: "Indian value of a statistical life", crore: 35571, bcr: 19.1 }, { label: "Workbook central values", crore: 127279, bcr: 42.1 } ]
+  },
+  // Delivery calendar (group design, Weeks 8 and 9); months are first days
+  route: [
+    { start: "2026-12-01", end: "2026-12-31", label: "Punjab notifies the scheme", who: "Punjab" },
+    { start: "2027-02-01", end: "2027-03-16", label: "Assembly election; term ends 16 March", who: "vote" },
+    { start: "2027-06-01", end: "2027-09-30", label: "Enrolment and ₹500 advances in half the villages", who: "Punjab" },
+    { start: "2027-10-01", end: "2027-11-30", label: "Harvest; satellite and field checks", who: "Punjab" },
+    { start: "2027-12-01", end: "2027-12-31", label: "₹2,000 an acre for clean fields", who: "Punjab" },
+    { start: "2028-02-01", end: "2028-03-31", label: "Evaluation against waiting villages", who: "eval" },
+    { start: "2028-06-01", end: "2028-12-31", label: "All villages join; Centre and Delhi pay", who: "all" }
+  ],
+  // Places on the map
+  cities: [
+    { name: "Delhi", lon: 77.209, lat: 28.6139 },
+    { name: "Chandigarh", lon: 76.7794, lat: 30.7333 },
+    { name: "Lahore", lon: 74.3587, lat: 31.5204 },
+    { name: "Ludhiana", lon: 75.8573, lat: 30.901 },
+    { name: "Amritsar", lon: 74.8723, lat: 31.634 },
+    { name: "Bathinda", lon: 74.9455, lat: 30.211 },
+    { name: "Patiala", lon: 76.3869, lat: 30.3398 },
+    { name: "Sangrur", lon: 75.8421, lat: 30.2458 }
+  ],
+  // Wind: the point the pipeline queries; without data the map shows the north-west octant
+  wind: { lon: 75.8573, lat: 30.901, place: "Ludhiana" }
+};

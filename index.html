@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Clean Field Contract: a proposal to pay Punjab’s farmers for paddy fields left unburnt</title>
+<meta name="description" content="Policy brief. Pay Punjab’s farmers ₹2,500 an acre for a paddy field left unburnt, ₹500 of it at enrolment, with every enrolled plot checked by satellite.">
+<meta name="author" content="Elchin Abbasov, Jakob Bilan, Timeo Goncalves, Narmin Isgandarli, Jack King, Ann Mary Philip, Cosimo Zatti">
+<meta property="og:title" content="The Clean Field Contract">
+<meta property="og:description" content="A proposal to pay Punjab’s farmers ₹2,500 an acre for a paddy field left unburnt, ₹500 of it at enrolment, with every enrolled plot checked by satellite.">
+<meta property="og:type" content="article">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%232c6a4d'/%3E%3Crect x='6' y='6' width='9' height='9' fill='%23e8d7a3'/%3E%3Crect x='17' y='6' width='9' height='9' fill='%23e8d7a3'/%3E%3Crect x='6' y='17' width='9' height='9' fill='%23e8d7a3'/%3E%3Crect x='17' y='17' width='9' height='9' fill='%23c43d1c'/%3E%3C/svg%3E">
+<link rel="preload" href="fonts/charis-sil-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/libre-franklin-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/site.css">
+</head>
+<body>
+<a class="skip" href="#counts">Skip the map</a>
+<main>
+<noscript><p class="noscript">The maps and charts on this page need JavaScript. The text, tables and sources below are complete without it.</p></noscript>
+
+<section class="scrolly" id="top" aria-label="Where the smoke comes from">
+  <div class="stage" id="stage" aria-hidden="true"></div>
+  <div class="steps">
+
+    <header class="step step-title" data-step="0">
+      <div class="panel">
+        <h1>The Clean Field Contract</h1>
+        <p class="deck">A proposal to pay Punjab’s farmers for paddy fields left unburnt</p>
+        <p class="authors">Elchin Abbasov, Jakob Bilan, Timeo Goncalves, Narmin Isgandarli, Jack King, Ann Mary Philip and Cosimo Zatti</p>
+        <p class="affil">School of Public Policy, London School of Economics and Political Science<br>Policy brief, November 2026</p>
+      </div>
+    </header>
+
+    <div class="step step-summary" data-step="1">
+      <div class="panel">
+        <h2 class="summary-title">Summary</h2>
+        <ul class="summary">
+          <li>Crop fires in Punjab cause 64% of India’s exposure to smoke from crop fires. Across India, that smoke was linked to between 44,000 and 98,000 early deaths a year in 2003–2019.<sup class="refs"><a href="#r-lan2022">1</a></sup></li>
+          <li>The official count of farm fires in Punjab fell from 71,304 in 2021 to 5,114 in 2025. Satellite maps of burnt fields show a much smaller fall, and most large fires now burn after the satellites that count them have passed.<sup class="refs"><a href="#r-pib2022">2</a><a href="#r-trib2025">3</a><a href="#r-iforest2025">4</a></sup></li>
+          <li>Farmers burn because it is the quickest and cheapest way to clear the straw. In a randomised trial in Punjab, paying farmers not to burn reduced burning when part of the money was paid up front.<sup class="refs"><a href="#r-lan2022">1</a><a href="#r-jack2025">5</a></sup></li>
+          <li>We propose ₹2,500 an acre for a field left unburnt, ₹500 of it paid at enrolment, with every enrolled plot checked by satellite. Punjab would fund the 2027 season. From 2028 the Centre and Delhi would pay for each certified acre.</li>
+        </ul>
+        <p class="jump"><a href="#contract">Go to the proposal</a></p>
+      </div>
+    </div>
+
+    <div class="step" data-step="2">
+      <div class="panel">
+        <p>On 11 November 2021 a NASA satellite photographed a long plume of smoke flowing from fires in Punjab and Haryana towards Delhi.<sup class="refs"><a href="#r-nasa2021">6</a></sup> In October and November the prevailing winds over the plains blow from the north-west and carry the smoke over Haryana and Delhi.<sup class="refs"><a href="#r-lan2022">1</a><a href="#r-hayashida">7</a></sup></p>
+        <p class="has-wind">The petals show how often the wind blew towards each direction 50 m above Ludhiana, from 15 October to 30 November in 2016–2025.<sup class="refs"><a href="#r-power">8</a></sup></p>
+        <p class="no-wind">The shaded sector shows the directions in which a north-westerly wind blows.</p>
+        <p>The environment ministry estimated that farm fires contributed 48% of Delhi’s fine particulate pollution on 7 November 2021, the highest daily share that season.<sup class="refs"><a href="#r-pib2022">2</a></sup></p>
+      </div>
+    </div>
+
+    <div class="step" data-step="3">
+      <div class="panel">
+        <p>Crop fires in Punjab cause 64% of India’s exposure to crop-fire smoke, almost six times Haryana’s share of 11%.<sup class="refs"><a href="#r-lan2022">1</a></sup> Nearly two-thirds of the exposure comes from burning after the rice harvest in October and November, when farmers have two to three weeks to clear the straw before wheat has to be sown.<sup class="refs"><a href="#r-lan2022">1</a></sup></p>
+      </div>
+    </div>
+
+    <div class="step" data-step="4">
+      <div class="panel">
+        <p>Under the national monitoring protocol, 71,304 farm fires were counted in Punjab between 15 September and 30 November 2021.<sup class="refs"><a href="#r-pib2022">2</a></sup></p>
+        <p class="has-data">Each dot is a fire detected in that season by the VIIRS instrument on the NOAA-20 satellite, <span data-live="countA"></span> detections in all.<sup class="refs"><a href="#r-firms">9</a></sup> The season plays forward as you scroll.</p>
+      </div>
+    </div>
+
+    <div class="step" data-step="5">
+      <div class="panel">
+        <p>The count fell every year after that, to 5,114 in 2025.<sup class="refs"><a href="#r-pib2023">10</a><a href="#r-air2025">11</a><a href="#r-trib2025">3</a></sup> In 2026 it rose again, to 7,159 by 25 November.<sup class="refs"><a href="#r-nh2026">12</a></sup></p>
+        <p class="has-data">The dots now show the <span data-live="seasonB">2026</span> season, <span data-live="countB"></span> detections<span data-live="throughB"></span>.</p>
+      </div>
+    </div>
+
+    <div class="step" data-step="6">
+      <div class="panel">
+        <p>Six districts between the Sutlej and the Ghaggar, Barnala, Sangrur, Patiala, Moga, Ludhiana and Fatehgarh Sahib, caused about 40% of the health damage from crop burning in India over 2003–2019. Patiala and Sangrur alone caused 20%.<sup class="refs"><a href="#r-lan2022">1</a><a href="#r-dte2022">13</a></sup></p>
+        <p>These districts grow coarse rice varieties that leave more straw to burn, and they lie upwind of densely populated areas.<sup class="refs"><a href="#r-lan2022">1</a></sup></p>
+      </div>
+    </div>
+
+    <div class="step" data-step="7">
+      <div class="panel">
+        <p>A satellite records a fire as a point with coordinates and a time. It sees only fires that are burning at the moment it passes overhead, once or twice a day.<sup class="refs"><a href="#r-iforest2025">4</a></sup></p>
+      </div>
+    </div>
+
+    <div class="step" data-step="8">
+      <div class="panel">
+        <p>On the ground, burning is the quickest and cheapest way to clear the straw before sowing wheat, and the smoke is carried to towns and cities downwind.<sup class="refs"><a href="#r-lan2022">1</a></sup></p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="air">
+
+<section class="chapter" id="counts">
+  <h2>What the fire counts miss</h2>
+  <p>Punjab’s official fire count comes from instruments on polar-orbiting satellites that pass over the state in daylight at about 10:30 and 13:30 local time.<sup class="refs"><a href="#r-iforest2025">4</a></sup> Burnt area is measured differently, from optical images taken in the days after a fire, which show burn scars on the fields. Since 2021 the two measures have moved apart (Figure 1).</p>
+
+  <figure class="fig wide" id="fig-counts">
+    <h3><span class="fn">Figure 1</span>Fire counts fell sharply after 2021 while the mapped burnt area stayed high</h3>
+    <p class="fig-sub">Punjab, rice-harvest season. Left: official fire counts, 15 September to 30 November. Right: burnt area from two satellite methods, in lakh hectares (1 lakh hectares is 1,000 km²).</p>
+    <div class="chart" data-chart="counts" role="img" aria-label="Official fire counts: 71,304 in 2021, 49,922 in 2022, 36,663 in 2023, 10,909 in 2024, 5,114 in 2025 and 7,159 by 25 November 2026. Burnt area from the Punjab Remote Sensing Centre: 15.5 lakh hectares in 2021, 19.1 in 2023 and 19.2 in 2024. From iFOREST: 31.4 in 2022 and about 20 in 2025."></div>
+    <p class="fig-notes">The 2026 count runs to 25 November. iFOREST’s 2025 figure uses images up to 27 November 2025 and may rise. iFOREST maps all cropland burnt in the kharif season on Sentinel-2 images; the Punjab Remote Sensing Centre figures are the state’s own estimates of the area under farm fires. The two series use different methods, so their levels cannot be compared with each other.</p>
+    <p class="fig-source">Sources: fire counts, Ministry of Environment, Forest and Climate Change and state figures as reported<sup class="refs"><a href="#r-pib2022">2</a><a href="#r-pib2023">10</a><a href="#r-air2025">11</a><a href="#r-trib2025">3</a><a href="#r-nh2026">12</a></sup>; burnt area, Punjab Remote Sensing Centre as reported<sup class="refs"><a href="#r-ht2022">14</a><a href="#r-newsdrum2025">15</a></sup> and iFOREST.<sup class="refs"><a href="#r-iforest2025">4</a></sup> <a class="data-link" href="data/figures/fig1-counts-burnt-area.csv" download>Data (CSV)</a></p>
+  </figure>
+
+  <p>CEEW estimates that burnt area in Punjab fell by about 11% between 2022 and 2024, while the count fell by 78%.<sup class="refs"><a href="#r-trib2026op">16</a></sup> iFOREST’s maps show a fall of 37% between 2022 and 2025.<sup class="refs"><a href="#r-iforest2025">4</a></sup></p>
+  <p>iFOREST attributes much of the gap to timing. In 2021, 3% of large fires in Punjab burned after 3 pm. In 2024 and 2025 more than 90% did, according to observations taken every 15 minutes by a geostationary satellite.<sup class="refs"><a href="#r-iforest2025">4</a></sup> Researchers at the Indian Space Research Organisation, using another geostationary satellite, found that the daily peak of burning moved from about 1:30 pm in 2020 to about 5 pm in 2024 (Figure 2).<sup class="refs"><a href="#r-singh2025">17</a></sup> A separate analysis at NASA found the same shift.<sup class="refs"><a href="#r-jethva2026">18</a><a href="#r-nasa2025">19</a></sup></p>
+
+  <figure class="fig wide" id="fig-clock">
+    <h3><span class="fn">Figure 2</span>Most large fires now burn after the satellites that count them have passed</h3>
+    <p class="fig-sub">Punjab, local time. Daytime passes of the satellites behind the official count, the share of large fires burning after 15:00, and the hour at which burning peaked.</p>
+    <div class="chart" data-chart="clock" role="img" aria-label="Satellites that count fires pass at 10:30 and 13:30. In 2021, 3% of large fires burned after 15:00; in 2020 burning peaked at about 13:30. In 2024 and 2025, more than 90% burned after 15:00; in 2024 burning peaked at about 17:00."></div>
+    <p class="fig-source">Sources: iFOREST, from observations every 15 minutes by SEVIRI on Meteosat<sup class="refs"><a href="#r-iforest2025">4</a></sup>; Singh et al. (2025), from Meteosat Second Generation observations.<sup class="refs"><a href="#r-singh2025">17</a></sup></p>
+  </figure>
+
+  <p>Later burning probably also does more harm. The lowest layer of the atmosphere, in which smoke mixes and thins out, is deepest at 1–2 pm and becomes shallower afterwards. Lan and colleagues estimate that burning two hours earlier in Punjab could avert up to 9,600 early deaths a year.<sup class="refs"><a href="#r-lan2022">1</a></sup> Modelling also suggests that evening fires cause a stronger build-up of particles overnight.<sup class="refs"><a href="#r-nasa2025">19</a></sup></p>
+  <p>Enforcement that relies on the daytime count misses most large fires. The Commission for Air Quality Management now plans to rely on burnt-area estimates and has asked states to use drones to find fires that the satellites miss.<sup class="refs"><a href="#r-bs2026">20</a></sup> The contract proposed here also pays on mapped burnt area, checked against a second source.</p>
+
+  <section class="live" id="live" hidden aria-labelledby="live-title">
+    <h3 id="live-title">This season</h3>
+    <p class="live-lede"></p>
+    <div class="chart" data-chart="live" role="img" aria-label="Cumulative satellite fire detections in Punjab this season compared with last season."></div>
+    <p class="fig-notes">Raw detections by one satellite, VIIRS on NOAA-20, inside Punjab’s boundary, with low-confidence detections removed. These are not the official count, which combines several satellites and filters detections differently.<sup class="refs"><a href="#r-firms">9</a></sup></p>
+  </section>
+</section>
+
+<section class="chapter" id="why">
+  <h2>Why farmers burn</h2>
+  <p>After harvesting rice in October or November, a Punjab farmer has two to three weeks to clear the field and sow wheat.<sup class="refs"><a href="#r-lan2022">1</a></sup> Sowing a week late costs about 1.5 quintals of wheat an acre, against an average yield of 22.<sup class="refs"><a href="#r-gandhi2025">21</a></sup> The alternatives to fire need a machine at the busiest time of year, either a seeder that sows wheat through the straw or a baler that removes it (Figure 3).</p>
+
+  <figure class="fig" id="fig-costs">
+    <h3><span class="fn">Figure 3</span>Clearing a field without fire cost ₹1,000 to ₹2,200 an acre in 2022</h3>
+    <p class="fig-sub">Price paid per acre in the 2022 rice season. Dot: median. Line: middle half of farmers.</p>
+    <div class="chart" data-chart="costs" role="img" aria-label="Median price per acre in 2022: Super Seeder 2,200 rupees, Happy Seeder 2,000, rotavator 1,750, straw removal by an aggregator 1,000."></div>
+    <p class="fig-notes">Seeders also sow the wheat, and a field that has been burnt still needs tilling and sowing, so the extra cost of not burning is lower than these prices.</p>
+    <p class="fig-source">Source: our calculation from the CEEW survey of 1,478 farmers in 11 districts. Machines: farmers who rented the machine with a tractor and paid by the acre. Straw removal: farmers who paid an aggregator to take the straw away.<sup class="refs"><a href="#r-ceew2024">22</a></sup> <a class="data-link" href="data/figures/fig3-hire-costs.csv" download>Data (CSV)</a></p>
+  </figure>
+
+  <p>Burning costs the farmer nothing in money, while the harm from the smoke falls on other people. Fines have been small next to the cost of the alternatives: in 2018–19, fines collected in Punjab came to ₹29 for each landholding estimated to have burned.<sup class="refs"><a href="#r-khanna2025">23</a></sup> By 25 November this year the state had registered 2,188 police cases over stubble burning, with 7,159 fires counted.<sup class="refs"><a href="#r-nh2026">12</a></sup></p>
+</section>
+
+<section class="chapter" id="tried">
+  <h2>What has been tried</h2>
+  <p>Punjab has tried bans, fines, machine subsidies and cash payments.</p>
+  <div class="table-wrap">
+    <table class="plain stack years">
+      <thead><tr><th scope="col">Year</th><th scope="col">Measure</th><th scope="col">What happened</th></tr></thead>
+      <tbody>
+        <tr><td>2015</td><td>Ban on residue burning by the National Green Tribunal</td><td>Fire counts fell by 30% against the pre-ban average, but the effect faded to near zero within two to three years. In Punjab the estimated fall was 9.6%.<sup class="refs"><a href="#r-khanna2025">23</a></sup></td></tr>
+        <tr><td>Since 2018</td><td>Subsidies for straw-management machines</td><td>At least 1.58 lakh machines handed out.<sup class="refs"><a href="#r-trib2025">3</a></sup> A study of Punjab’s sub-districts found no significant effect of the machines on fire intensity in 2018–22.<sup class="refs"><a href="#r-solomon2026">24</a></sup></td></tr>
+        <tr><td>2019</td><td>₹100 a quintal of paddy, about ₹2,500 an acre, for small and marginal farmers who declared they had not burned, after a Supreme Court order</td><td>Suspended a few weeks later over doubts about the declarations.<sup class="refs"><a href="#r-jack2025">5</a><a href="#r-trib2022a">25</a></sup></td></tr>
+        <tr><td>2022</td><td>Punjab and Delhi propose ₹2,500 an acre: ₹1,500 from the Centre and ₹500 each from Punjab and Delhi</td><td>The Centre declined.<sup class="refs"><a href="#r-trib2022a">25</a><a href="#r-trib2022b">26</a></sup></td></tr>
+        <tr><td>2024</td><td>Punjab asks the Centre for ₹1,200 crore towards a payment of ₹2,500 an acre</td><td>The Centre declined and pointed to the incentives Haryana pays from its own budget.<sup class="refs"><a href="#r-trib2024">27</a></sup></td></tr>
+        <tr><td>2024 to 2026</td><td>Fines doubled to ₹5,000, ₹10,000 or ₹30,000 per incident, by size of holding; police cases and red entries in land records</td><td>By 25 November 2026: 2,188 police cases, 2,295 red entries and 7,159 counted fires.<sup class="refs"><a href="#r-pib2024">28</a><a href="#r-nh2026">12</a></sup></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Fines rely on detecting fires, and most large fires now burn after the satellites have passed. Machine subsidies make the alternatives cheaper but pay nothing for using them. Only the 2019 scheme paid farmers for not burning, and it relied on their own declarations.</p>
+</section>
+
+<section class="chapter" id="evidence">
+  <h2>What the evidence shows</h2>
+  <p>In 2019 a randomised trial with 1,668 farmers in 171 villages of Bathinda and Faridkot tested payments for not burning. The farmers had used equipment the year before that suggested they burned their straw. Most contracts paid ₹800 an acre, and one variant paid ₹1,600. In some villages the whole payment came after verification. In others a quarter or half was paid up front and kept whatever the farmer did.<sup class="refs"><a href="#r-jack2025">5</a></sup></p>
+
+  <figure class="fig" id="fig-trial">
+    <h3><span class="fn">Figure 4</span>Paying part of the money up front reduced burning</h3>
+    <p class="fig-sub">Effect on the share of farmers with no burnt plot, in percentage points relative to villages without a contract, with 95% confidence intervals. Two ways of classifying the same satellite images.</p>
+    <div class="chart" data-chart="trial" role="img" aria-label="Payment partly up front raised the share of farmers with no burnt plot by 7.7 points (95% interval 1.4 to 14.0) on one measure and by 11.5 points (3.3 to 19.7) on the other. Payment only after verification: 2.0 points (minus 3.9 to 7.9) and 0.8 points (minus 7.4 to 9.0)."></div>
+    <p class="fig-notes">In villages without a contract, 9.1% of farmers burned no plot on the first measure and 20.2% on the second.</p>
+    <p class="fig-source">Source: Jack, Jayachandran, Kala and Pande (2025), Table 1, p. 48.<sup class="refs"><a href="#r-jack2025">5</a></sup> <a class="data-link" href="data/figures/fig4-trial.csv" download>Data (CSV)</a></p>
+  </figure>
+
+  <p>Paying part up front raised the share of farmers who burned none of their plots by 7.7 to 11.5 percentage points, depending on how the satellite images were classified. Paying only after verification had no measurable effect. The authors estimate a cost of $3,600 to $5,400 per life saved.<sup class="refs"><a href="#r-jack2025">5</a></sup></p>
+  <p>The authors suggest two reasons why the advance helps: it shows farmers that the final payment will come, and it gives them cash to hire machines. It worked no better for the farmers with the least cash or the least trust, so which reason matters more is not settled. Most farmers still burned, which the authors read as a sign that ₹800 an acre was below most farmers’ full cost of the alternatives.<sup class="refs"><a href="#r-jack2025">5</a></sup></p>
+</section>
+
+<section class="chapter" id="contract">
+  <h2>The proposal</h2>
+  <p class="lede">The Clean Field Contract pays farmers for an outcome, a paddy field with no burn scar, and leaves the method to them.</p>
+  <div class="table-wrap">
+    <table class="terms">
+      <tbody>
+        <tr><th scope="row">Who can join</th><td>Every grower of non-basmati paddy in a covered village, owner or tenant. Joining does not change any fine a farmer may face.</td></tr>
+        <tr><th scope="row">At enrolment</th><td>₹500 an acre, paid into the farmer’s bank account within three working days of approval. The farmer keeps it even if the field burns, but then receives no advance the following season.</td></tr>
+        <tr><th scope="row">After the season</th><td>₹2,000 an acre if none of the farmer’s registered paddy plots shows a burn scar. Seeders, balers, fodder and sale to a straw buyer all count.</td></tr>
+        <tr><th scope="row">Acres covered</th><td>The full rate on the first 10 acres and half the rate on acres 10 to 25, so no farmer receives more than ₹43,750 a season.</td></tr>
+        <tr><th scope="row">Checks</th><td>Sentinel-2 burnt-area maps cover every enrolled plot. A plot flagged as burnt is checked against a second, independent source, and payment is refused only if both show a burn, because satellite data alone are not a sound basis for such decisions.<sup class="refs"><a href="#r-misra2026">29</a></sup> Field staff inspect a random sample of plots before tilling, after which burnt and unburnt plots look alike.<sup class="refs"><a href="#r-jack2025">5</a></sup> Farmers can appeal within 15 days.</td></tr>
+        <tr><th scope="row">Payment</th><td>Through Anaaj Kharid, the online portal Punjab uses for its paddy and wheat procurement.<sup class="refs"><a href="#r-design">30</a></sup></td></tr>
+        <tr><th scope="row">Tenants</th><td>A tenant registers the plots he farms. The owner is told by text message, and plot lists are posted in the village. A claim that nobody contests within seven days stands. It records who farms the plot for this payment only and creates no tenancy right.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <figure class="fig calc" id="fig-calc">
+    <h3><span class="fn">Figure 5</span>What a farmer would receive</h3>
+    <div class="calc-row">
+      <label for="acres">Acres of non-basmati paddy</label>
+      <input id="acres" type="range" min="0.5" max="30" step="0.5" value="5">
+      <output id="acres-out" for="acres">5 acres</output>
+    </div>
+    <div class="calc-out" id="calc-out" aria-live="polite"></div>
+    <div class="chart" data-chart="calc"></div>
+    <p class="fig-notes">Half the rate applies to acres 10 to 25; acres beyond 25 are not paid.</p>
+  </figure>
+
+  <p>₹2,500 an acre is close to the median price of renting a Super Seeder in 2022, ₹2,200,<sup class="refs"><a href="#r-ceew2024">22</a></sup> and equals the rate Punjab and Delhi proposed in 2022.<sup class="refs"><a href="#r-trib2022a">25</a></sup></p>
+</section>
+
+<section class="chapter" id="pay">
+  <h2>Who pays</h2>
+  <p>Punjab pays for the first season, so the scheme can start in 2027 without waiting for other governments. From 2028, if an independent evaluation finds that enrolled villages burn at least 5 percentage points less than villages still waiting to join, the Centre and Delhi take over the final payment, at ₹1,500 and ₹500 for each certified clean acre. Punjab continues to pay the advance and to run the scheme.</p>
+
+  <figure class="fig" id="fig-pay">
+    <h3><span class="fn">Figure 6</span>Who pays for each enrolled acre</h3>
+    <p class="fig-sub">Payment per enrolled acre, by government, in 2027 and from 2028.</p>
+    <div class="chart" data-chart="pay" role="img" aria-label="2027 season: Punjab pays 500 rupees at enrolment and 2,000 after a clean season. From 2028, after the evaluation: Punjab pays the 500 advance, the Centre 1,500 and Delhi 500 of the final payment."></div>
+    <p class="fig-notes">At full scale our model has about 54 lakh acres enrolled and public spending of about ₹755 crore a year: ₹281 crore from Punjab (advances and administration), ₹355 crore from the Centre and ₹118 crore from Delhi.</p>
+    <p class="fig-source">Source: our design and cost model.<sup class="refs"><a href="#r-design">30</a><a href="#r-model">31</a></sup></p>
+  </figure>
+
+  <p>The Centre and Delhi pay only for acres that pass the checks. The same rate could be offered to any state that adopts the same checks.</p>
+</section>
+
+<section class="chapter" id="effect">
+  <h2>Benefits and costs</h2>
+  <p>The main benefit is fewer early deaths from smoke. In our model each acre that stops burning averts about 0.008 deaths a year, based on Lan and colleagues’ estimate of 380 deaths for each 1% cut in Punjab’s post-monsoon burning.<sup class="refs"><a href="#r-lan2022">1</a><a href="#r-model">31</a></sup></p>
+
+  <figure class="fig" id="fig-explorer">
+    <h3><span class="fn">Figure 7</span>What the contract achieves at different effect sizes</h3>
+    <p class="fig-sub">Set the effect on the unburnt share of enrolled land that you consider plausible. Figures are for one year once the scheme covers all of Punjab.</p>
+    <div class="calc-row">
+      <label for="effect-input">Effect, percentage points</label>
+      <input id="effect-input" type="range" min="0.5" max="20" step="0.5" value="10">
+      <output id="effect-out" for="effect-input">10 points</output>
+    </div>
+    <div class="calc-out four" id="effect-res" aria-live="polite"></div>
+    <div class="chart" data-chart="explorer" role="img" aria-label="Early deaths averted each year rise in proportion to the effect: about 2,200 at 5 points, 4,300 at 10 points and 8,700 at 20 points. The trial measured 7.7 to 11.5 points among likely burners."></div>
+    <p class="fig-notes">With the workbook’s central values, the model’s net present value is positive for any effect above 0.21 points. Public money includes payments to farmers who would not have burned in any case.</p>
+    <p class="fig-source">Sources: our cost model, workbook of 27 October 2026<sup class="refs"><a href="#r-model">31</a></sup>; Jack et al. (2025) for the trial range.<sup class="refs"><a href="#r-jack2025">5</a></sup></p>
+  </figure>
+
+  <p>Our central assumption is a 10-point effect on all enrolled land. The trial measured 7.7 to 11.5 points at ₹800 an acre, but only among farmers likely to burn; the contract pays more than three times as much, to every paddy grower who enrols.<sup class="refs"><a href="#r-jack2025">5</a></sup> At 10 points about 5.4 lakh fewer acres burn and about 4,300 early deaths are averted each year once the scheme covers all of Punjab.<sup class="refs"><a href="#r-model">31</a></sup></p>
+  <p>Payments to farmers are transfers between groups. The costs that count are administration, farmers’ own costs of switching and the cost of raising public money. The net present value over 2027–2036 at a 9.5% discount rate is positive in every case we ran: about ₹18,000 crore in a cautious case, ₹35,600 crore with an Indian value of a statistical life, and ₹1.27 lakh crore with the workbook’s central values.<sup class="refs"><a href="#r-model">31</a></sup></p>
+  <p>Most of the money goes to farmers whose behaviour does not change, because they would not have burned or because they burn and keep the advance. In our model, ₹621 crore of the ₹696 crore paid to farmers each year would be paid even if no farmer changed what he does. Public money per early death averted is still about ₹17 lakh.<sup class="refs"><a href="#r-model">31</a></sup></p>
+</section>
+
+<section class="chapter" id="route">
+  <h2>Delivery</h2>
+  <p>The scheme runs on systems Punjab already has: Anaaj Kharid for registration and payment, and satellite burnt-area maps for checks, with lists certified by the Commission for Air Quality Management. Half of Punjab’s villages, chosen by lottery, start in 2027 and the rest join in 2028, which allows a fair comparison (Figure 8).<sup class="refs"><a href="#r-design">30</a></sup></p>
+
+  <figure class="fig wide" id="fig-route">
+    <h3><span class="fn">Figure 8</span>Notification in December 2026, first final payments in December 2027</h3>
+    <p class="fig-sub">Calendar, December 2026 to December 2028.</p>
+    <div class="chart" data-chart="route" role="img" aria-label="December 2026: Punjab notifies the scheme. February to 16 March 2027: assembly election. June to September 2027: enrolment and advances. October and November 2027: harvest and checks. December 2027: final payments. February and March 2028: evaluation. June to December 2028: all villages join and the Centre and Delhi pay for certified acres."></div>
+    <p class="fig-notes">The Assembly’s term ends on 16 March 2027, and polling is expected in late February or early March.<sup class="refs"><a href="#r-jagran2026">32</a></sup> The scheme is notified before the election code applies, and the first payments are made after the new government takes office, whichever party forms it.</p>
+  </figure>
+
+  <h3 class="sub">Targets</h3>
+  <div class="table-wrap">
+    <table class="plain stack">
+      <thead><tr><th scope="col">Measure</th><th scope="col">Target</th><th scope="col">How it is measured</th></tr></thead>
+      <tbody>
+        <tr><td>Burning in enrolled villages</td><td>At least 5 points below villages still waiting</td><td>Sentinel-2 burnt area, checked in the field</td></tr>
+        <tr><td>Clean farmers wrongly refused</td><td>At most 5%</td><td>Random field checks before tilling</td></tr>
+        <tr><td>Advance paid</td><td>Within 3 working days of approval</td><td>Anaaj Kharid payment records</td></tr>
+        <tr><td>Final payments</td><td>At least 90% by 31 December</td><td>Payment records</td></tr>
+        <tr><td>Disputes over who farms a plot</td><td>At least 90% settled within 7 days</td><td>Dispute register</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="sub">If delivery falls short</h3>
+  <div class="table-wrap">
+    <table class="plain stack">
+      <thead><tr><th scope="col">Problem</th><th scope="col">Signal</th><th scope="col">Change</th><th scope="col">Effect of the change</th></tr></thead>
+      <tbody>
+        <tr><td>No money set aside before enrolment</td><td>The scheme’s account is empty when enrolment opens</td><td>Start in half the villages of the six highest-damage districts</td><td>Lower total benefit, higher benefit per rupee</td></tr>
+        <tr><td>Disputes over who farms a plot swamp the patwaris</td><td>Fewer than 90% settled within 7 days</td><td>Pay whoever sold the plot’s paddy last season</td><td>Some tenants lose out where the seller does not farm</td></tr>
+        <tr><td>Hire centres cannot meet peak demand</td><td>More than 20% of renters served late</td><td>A bonus for certified short-duration rice seed</td><td>Thinner evidence: one unpublished trial<sup class="refs"><a href="#r-gandhi2025">21</a></sup></td></tr>
+        <tr><td>Satellites wrongly refuse clean farmers</td><td>More than 5% wrongly refused in random checks</td><td>A baler’s receipt counts as a third proof</td><td>Slightly lower benefit: in 2022, 54 of 348 surveyed farmers who gave straw to a baler also burnt some of it<sup class="refs"><a href="#r-ceew2024">22</a></sup></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="chapter closing" id="decision">
+  <h2>What has to happen</h2>
+  <p>Punjab notifies the contract in December 2026, before the election code applies. Farmers in half of Punjab’s villages enrol from June 2027. Satellites and field staff check every enrolled plot after the harvest. If burning falls by at least 5 percentage points, the Centre and Delhi pay for each certified acre from 2028.</p>
+  <p class="share" id="share"><a id="share-wa" href="https://wa.me/">Send on WhatsApp</a><a id="share-mail" href="mailto:">Send by email</a><button type="button" id="share-copy">Copy the link</button><button type="button" id="share-print">Print or save as PDF</button></p>
+</section>
+
+<section class="chapter sources" id="sources">
+  <h2>Sources and notes</h2>
+  <ol class="references">
+    <li id="r-lan2022">Lan, R., Eastham, S. D., Liu, T., Norford, L. K. and Barrett, S. R. H. (2022). Air quality impacts of crop residue burning in India and mitigation alternatives. <i>Nature Communications</i> 13, 6537. <a href="https://doi.org/10.1038/s41467-022-34093-z">doi.org/10.1038/s41467-022-34093-z</a></li>
+    <li id="r-pib2022">Ministry of Environment, Forest and Climate Change (2022). Paddy crop residue burning events in Punjab, Haryana, Delhi and the NCR districts of Uttar Pradesh and Rajasthan, 15 September to 30 November 2022. Press Information Bureau. <a href="https://pib.gov.in/PressReleasePage.aspx?PRID=1880978">pib.gov.in</a></li>
+    <li id="r-trib2025">The Tribune (2025). Punjab witnesses 53% reduction in farm fires this year. <a href="https://www.tribuneindia.com/news/punjab/punjab-witnesses-53-reduction-in-farm-fires-this-year/">tribuneindia.com</a></li>
+    <li id="r-iforest2025">iFOREST (2025). Stubble Burning Status Report: 2025. 8 December 2025. <a href="https://iforest.global/wp-content/uploads/2025/12/StubbleBurning_StatusReport_2025_Website.pdf">iforest.global</a></li>
+    <li id="r-jack2025">Jack, B. K., Jayachandran, S., Kala, N. and Pande, R. (2025). Money (not) to burn: payments for ecosystem services to reduce crop residue burning. <i>American Economic Review: Insights</i> 7(1), 39–55. <a href="https://doi.org/10.1257/aeri.20230431">doi.org/10.1257/aeri.20230431</a></li>
+    <li id="r-nasa2021">NASA Earth Observatory (2021). A shot of smoke for Delhi. Image of 11 November 2021. <a href="https://science.nasa.gov/earth/earth-observatory/a-shot-of-smoke-for-delhi-149086/">science.nasa.gov</a></li>
+    <li id="r-hayashida">Hayashida, S. (2024). Tackling air pollution from agricultural residue burning. The Aakash Project: challenge for reduction of rice-stubble burning in the Indian Punjab region. <i>Global Environmental Research</i> 27(1), 3–12. <a href="https://www.jstage.jst.go.jp/article/ger/27/1/27_3/_article/-char/en">jstage.jst.go.jp</a></li>
+    <li id="r-power">NASA Prediction of Worldwide Energy Resources (POWER). Hourly wind speed and direction at 50 m from the MERRA-2 reanalysis, downloaded by this site’s data pipeline. <a href="https://power.larc.nasa.gov/docs/methodology/meteorology/wind/">power.larc.nasa.gov</a></li>
+    <li id="r-firms">NASA Fire Information for Resource Management System (FIRMS). VIIRS active fire detections, NOAA-20, downloaded daily during the season by this site’s data pipeline. <a href="https://firms.modaps.eosdis.nasa.gov/api/area/">firms.modaps.eosdis.nasa.gov</a></li>
+    <li id="r-pib2023">Ministry of Environment, Forest and Climate Change (2023). Paddy harvesting season 2023: farm fire counts in Punjab and Haryana. Press Information Bureau. <a href="https://pib.gov.in/PressReleasePage.aspx?PRID=1981276">pib.gov.in</a></li>
+    <li id="r-air2025">All India Radio News (2025). Punjab records 85% drop in stubble burning since 2021. 5 August 2025, reporting a written reply in the Lok Sabha. <a href="https://www.newsonair.gov.in/punjab-records-85-drop-in-stubble-burning-since-2021">newsonair.gov.in</a></li>
+    <li id="r-nh2026">National Herald (2026). Punjab records 7,159 stubble burning cases; 265 FIRs filed in Patiala. 26 November 2026, citing the Punjab Pollution Control Board’s report to 25 November. <a href="https://www.nationalheraldindia.com/national/punjab-records-7159-stubble-burning-cases-265-firs-filed-in-patiala">nationalheraldindia.com</a></li>
+    <li id="r-dte2022">Down To Earth (2022). Stubble burning: focus on 6 Punjab districts, study by Harvard, MIT suggests. Names the six districts in Lan et al. (2022). <a href="https://www.downtoearth.org.in/news/stubble-burning-focus-on-6-punjab-districts-study-by-harvard-mit-suggests-86314">downtoearth.org.in</a></li>
+    <li id="r-ht2022">Hindustan Times (2022). Area under farm fires increases even as count dips in Punjab. 22 November 2022; Punjab Remote Sensing Centre figure for 2021. <a href="https://www.pressreader.com/india/hindustan-times-patiala/20221122/281586654597938">pressreader.com</a></li>
+    <li id="r-newsdrum2025">Newsdrum (2025). Data links Punjab’s fire spikes to Delhi’s pollution within 24 hours. Punjab Remote Sensing Centre figures for 2023 and 2024. <a href="https://www.newsdrum.in/analysis/data-links-punjabs-fire-spikes-to-delhis-pollution-within-24-hours-10595031">newsdrum.in</a></li>
+    <li id="r-trib2026op">The Tribune (2026). Plug gaps in counting of farm fires. Opinion, citing CEEW’s burnt-area analysis. <a href="https://www.tribuneindia.com/news/comment/plug-gaps-in-counting-of-farm-fires/">tribuneindia.com</a></li>
+    <li id="r-singh2025">Singh, N. et al. (2025). Evidence of shift in stubble burning timing over northwest India from geostationary satellite observations. <i>Current Science</i> 129(10), 921–923. <a href="https://www.currentscience.ac.in/Volumes/129/10/0921.pdf">currentscience.ac.in</a></li>
+    <li id="r-jethva2026">Jethva, H. (2026). Timing the flames: geostationary satellite detection of diurnally shifting stubble burning in northwestern India. <i>Remote Sensing</i> 18, 1506. <a href="https://mdpi-res.com/d_attachment/remotesensing/remotesensing-18-01506/article_deploy/remotesensing-18-01506.pdf">mdpi-res.com</a></li>
+    <li id="r-nasa2025">NASA Earth Observatory (2025). New timing for stubble burning in India. 15 December 2025. <a href="https://science.nasa.gov/earth/earth-observatory/new-timing-for-stubble-burning-in-india/">science.nasa.gov</a></li>
+    <li id="r-bs2026">Business Standard (2026). Farm fires fall on paper, but are satellites missing evening-hour burning? 17 November 2026. <a href="https://www.business-standard.com/industry/agriculture/farm-fires-fall-on-paper-but-are-satellites-missing-evening-hour-burning-126111701541_1.html">business-standard.com</a></li>
+    <li id="r-gandhi2025">Gandhi, P. (2025). Extinguishing the blaze: impact of crop residue management on stubble burning in India. Job market paper, University of California, Santa Cruz, 28 October 2025, p. 8, note 2. <a href="https://piyushgandhi1210.github.io/files/Piyush_Job_Market_Paper.pdf">piyushgandhi1210.github.io</a></li>
+    <li id="r-ceew2024">Kemanth, K., Singh, R. and Ignatious, S. M. (2024). How can Punjab increase the adoption of crop residue management methods? Survey insights from 11 districts of the state. New Delhi: Council on Energy, Environment and Water. Survey of 1,478 farmers, 2022 rice season; our calculations use the survey microdata. <a href="https://www.ceew.in/publications/how-can-punjab-adopt-crop-residue-management-methods-and-tackle-paddy-stubble-burning">ceew.in</a></li>
+    <li id="r-khanna2025">Khanna, S., Mahajan, K. and Ramanujam, S. (2025). Are crop residue burning bans effective? Evidence from India. Grantham Research Institute on Climate Change and the Environment, Working Paper 428. Abstract; Table 2, p. 11; p. 17. <a href="https://www.lse.ac.uk/granthaminstitute/publication/are-crop-residue-burning-bans-effective-evidence-from-india/">lse.ac.uk</a></li>
+    <li id="r-solomon2026">Solomon, D., McDonald, A., Barrett, C. B., Veettil, P. C. and Dhillon, B. S. (2026). Understanding the persistence of rice residue burning in northwestern India: a mixed methods approach. <i>Agricultural Systems</i> 231, 104530. <a href="https://doi.org/10.1016/j.agsy.2025.104530">doi.org/10.1016/j.agsy.2025.104530</a></li>
+    <li id="r-trib2022a">The Tribune (2022). Plan to give Rs 2,500/acre cash incentive to Punjab farmers for not burning stubble, says Kejriwal. 27 July 2022. <a href="https://tribuneindia.com/news/plan-to-give-rs-2500-acre-cash-incentive-to-punjab-farmers-for-not-burning-stubble-says-kejriwal-416230">tribuneindia.com</a></li>
+    <li id="r-trib2022b">The Tribune (2022). Stubble burning: Centre refused to contribute to cash incentive for farmers, says Punjab CM Bhagwant Mann. 10 September 2022. <a href="https://www.tribuneindia.com/news/punjab/stubble-burning-centre-refused-to-contribute-to-cash-incentive-for-farmers-says-punjab-cm-bhagwant-mann-430439">tribuneindia.com</a></li>
+    <li id="r-trib2024">The Tribune (2024). Farm fires: Centre turns down Punjab’s demand for Rs 1,200 cr towards payment of incentives to farmers. <a href="https://tribuneindia.com/news/farm-fires-centre-turns-down-punjabs-demand-for-rs-1200-cr-towards-payment-of-incentives-to-farmers">tribuneindia.com</a></li>
+    <li id="r-pib2024">Ministry of Environment, Forest and Climate Change (2024). Amendment Rules on environmental compensation for stubble burning, notification G.S.R. 690(E) of 6 November 2024. Press Information Bureau. <a href="https://pib.gov.in/PressReleasePage.aspx?PRID=2071574">pib.gov.in</a></li>
+    <li id="r-misra2026">Misra, P., Hayashida, S., Moriyama, M. and Araki, H. (2026). Limitations of interpreting orbiting satellite-based fire detection for crop residue burning: has rice straw burning in northwest India decreased in recent years? <i>International Journal of Applied Earth Observation and Geoinformation</i> 152, 105418, pp. 15–16.</li>
+    <li id="r-design">Abbasov, E., Bilan, J., Goncalves, T., Isgandarli, N., King, J., Philip, A. M. and Zatti, C. (2026). Clean Field Contract: technical documentation (19 October 2026) and design, delivery and fallback notes for Weeks 7 to 9. Unpublished course documents.</li>
+    <li id="r-model">Abbasov, E., Bilan, J., Goncalves, T., Isgandarli, N., King, J., Philip, A. M. and Zatti, C. (2026). Clean Field Contract cost-benefit model, workbook of 27 October 2026, and accompanying note. Unpublished course documents. Deaths averted use 380 deaths per 1% cut in Punjab’s post-monsoon burning from Lan et al. (2022).</li>
+    <li id="r-jagran2026">Daily Jagran (2026). Assembly elections in 5 states including UP and Punjab likely between Feb 24–March 8; date announcement may be delayed. Gives 16 March 2027 as the end of the Punjab Assembly’s term. <a href="https://www.thedailyjagran.com/india/news/assembly-elections-in-5-states-including-up-and-punjab-likely-between-feb-24march-8-date-announcement-may-be-delayed-10337262">thedailyjagran.com</a></li>
+  </ol>
+
+  <div class="colophon">
+    <h3>About this brief</h3>
+    <p>Elchin Abbasov, Jakob Bilan, Timeo Goncalves, Narmin Isgandarli, Jack King, Ann Mary Philip and Cosimo Zatti wrote this brief for the course PP425 Strategic Policymaking at the London School of Economics and Political Science. The views are their own and not those of LSE or of any government.</p>
+    <p><span class="credit-sat">Satellite image: NASA Global Imagery Browse Services, VIIRS on Suomi NPP, corrected reflectance, 11 November 2021.</span> <span class="credit-photo">Photograph: rice straw burning near Sangrur, 2 November 2011, by Neil Palmer (CIAT), <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC BY-SA 2.0</a>, via <a href="https://commons.wikimedia.org/wiki/File:NP_India_burning1_(6314801805).jpg">Wikimedia Commons</a>.</span> District and state boundaries: INDIAN-SHAPEFILES by datta07 (MIT licence), with 22 districts; Malerkotla, created in 2021, is shown within Sangrur. Coast and rivers: Natural Earth. The maps draw state boundaries only.</p>
+    <p class="live-stamp">Fire detections are refreshed once a day during the burning season by a scheduled script that queries NASA FIRMS.</p>
+    <p>Typefaces: Charis SIL and Libre Franklin (SIL Open Font Licence). Charts drawn with D3. Code and data are in the repository this page is published from.</p>
+  </div>
+</section>
+
+</div>
+</main>
+<script src="vendor/d3-7.9.0.min.js"></script>
+<script src="vendor/topojson-client-3.1.0.min.js"></script>
+<script src="js/geo.js"></script>
+<script src="js/data.js"></script>
+<script src="js/site.js"></script>
+</body>
+</html>

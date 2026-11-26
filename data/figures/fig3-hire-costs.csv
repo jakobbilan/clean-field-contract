@@ -1,0 +1,5 @@
+route,detail,farmers,p25_inr_per_acre,median_inr_per_acre,p75_inr_per_acre
+Super Seeder,hired with a tractor,249,2000,2200,2500
+Happy Seeder,hired with a tractor,40,1775,2000,2400
+Rotavator,hired with a tractor,58,1500,1750,2000
+Straw removal,paid to an aggregator,135,700,1000,1500
