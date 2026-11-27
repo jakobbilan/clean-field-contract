@@ -31,8 +31,8 @@ SAT_SCENES = [                                 # group decides which map steps s
     {"id": "bm-wide", "group": "bm", "layer": BLUE_MARBLE, "date": None, "bounds": [40.0, -12.0, 125.0, 50.0], "width": 2400, "height": 1751},
     {"id": "bm-north", "group": "bm", "layer": BLUE_MARBLE, "date": None, "bounds": [60.0, 15.0, 98.0, 41.0], "width": 2400, "height": 1642},
     {"id": "plain", "group": "viirs", "layer": SAT_LAYER, "date": SAT_DATE, "bounds": [66.5, 22.5, 85.5, 37.5], "width": 2400, "height": 1895},
-    {"id": "punjab", "group": "modis", "layer": MODIS_LAYER, "date": SAT_DATE, "bounds": [71.0, 27.6, 79.4, 34.2], "width": 2400, "height": 1886},
-    {"id": "six", "group": "modis", "layer": MODIS_LAYER, "date": SAT_DATE, "bounds": [74.2, 29.3, 77.4, 31.7], "width": 2048, "height": 1536},
+    # Punjab and the six districts: VIIRS, whose swath covers the whole area on this date (Terra's MODIS leaves a gap to the east)
+    {"id": "punjab", "group": "detail", "layer": SAT_LAYER, "date": SAT_DATE, "bounds": [71.0, 27.6, 79.4, 34.2], "width": 2400, "height": 1886},
 ]
 # 30 m true colour around the field view: Harmonized Landsat Sentinel-2 (HLS); the clearest recent date is chosen
 FIELD_SCENE = {

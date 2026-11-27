@@ -11,6 +11,6 @@ fs.writeFileSync(path.join(out, 'fig1-counts-burnt-area.csv'), csv([['measure', 
   ...D.burnt.map(b => ['burnt area', b.method, b.season, b.lakhHa, 'lakh hectares', b.partial || '', b.ref])]));
 fs.writeFileSync(path.join(out, 'fig3-hire-costs.csv'), csv([['route', 'detail', 'farmers', 'p25_inr_per_acre', 'median_inr_per_acre', 'p75_inr_per_acre'],
   ...D.costs.map(c => [c.route, c.detail, c.n, c.p25, c.med, c.p75])]));
-fs.writeFileSync(path.join(out, 'fig4-trial.csv'), csv([['measure', 'control_share_pct', 'arm', 'effect_pp', 'se_pp', 'ci95_low', 'ci95_high'],
+fs.writeFileSync(path.join(out, 'fig5-trial.csv'), csv([['measure', 'control_share_pct', 'arm', 'effect_pp', 'se_pp', 'ci95_low', 'ci95_high'],
   ...D.trial.map(t => [t.measure, t.control, t.arm, t.est, t.se, (t.est - 1.96 * t.se).toFixed(1), (t.est + 1.96 * t.se).toFixed(1)])]));
 console.log('wrote', fs.readdirSync(out).join(', '));

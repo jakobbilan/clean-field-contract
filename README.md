@@ -48,6 +48,18 @@ Each run requests 22 district statistics for the running season once a week, and
 estimate that uses about 1,000 to 2,000 processing units a run, against a free quota of 10,000 a month; the
 dashboard shows the actual use. Without the secrets the step is skipped and the chart stays hidden.
 
+## Media pack
+
+`press/` holds the media materials listed at the bottom of the page: a one-page summary (PDF), six key messages as
+landscape and portrait images, the brief's figures, three maps, thumbnails, and one ZIP with everything and the data.
+They are static files made from the data of 27 November 2026. To remake them after the data or the text change, run
+on a copy of the repository with its data:
+
+    pip install playwright pillow && python -m playwright install chromium
+    python tools/press.py
+
+The sources of the cards and the summary are in `press/source/`.
+
 ## What updates itself
 
 | Part | How often |
@@ -66,7 +78,7 @@ To look at it locally: `python3 -m http.server 8000`, then open http://localhost
 | --- | --- |
 | Map story | Scrolls from South Asia to Punjab, the six districts that cause about 40% of India’s crop-smoke deaths, and a single field. Fire detections play forward day by day as you scroll. |
 | Wind | Evenly spaced, moving streamlines of the season-mean wind 50 m above ground (NASA POWER, MERRA-2, 15 October to 30 November 2016–2025). Until the data are downloaded, the lines show the prevailing north-westerly flow and are labelled as schematic. |
-| Imagery | Blue Marble Next Generation for the two overview steps, VIIRS (11 November 2021) for the smoke steps, MODIS at 250 m for the Punjab steps with fire dots on top, and a 30 m HLS image of burn scars for the field step. Each scene is larger than any view, so the image always fills the map. |
+| Imagery | Blue Marble Next Generation for the two overview steps, VIIRS (11 November 2021) for the smoke steps, VIIRS for the Punjab steps with fire dots on top, and a 30 m HLS image of burn scars for the field step. Each scene is larger than any view, so the image always fills the map. |
 | Figures 1 to 4 | Counted fires against mapped burnt area; the timing of burning against satellite passes; the price of clearing a field without fire; the results of the Punjab trial |
 | Figure 5 | Calculator: what a farmer with a given number of acres would receive |
 | Figure 7 | Explorer: acres no longer burnt, deaths averted and public money at any assumed effect |
@@ -89,7 +101,7 @@ recomputed from the CEEW survey microdata; the cost figures are taken from the g
 | `js/data.js` | Every number behind the figures, each with its source key |
 | `js/geo.js` | District and state boundaries, coast and rivers (TopoJSON) |
 | `js/india.js` | India’s national boundary and state lines (GeoJSON, simplified) |
-| `data/figures/` | CSV files behind Figures 1, 3 and 4 |
+| `data/figures/` | CSV files behind Figures 1, 3 and 5 |
 | `data/claims-register.csv` | Source, locator and check date for every claim on the page |
 | `data/*.json` | Written by the pipeline: `assets.json`, `wind.json`, `live.json`, `fires-<season>.json` |
 | `assets/` | Satellite images and the photograph, downloaded by the pipeline |

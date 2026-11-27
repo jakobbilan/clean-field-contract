@@ -1,0 +1,5 @@
+measure,control_share_pct,arm,effect_pp,se_pp,ci95_low,ci95_high
+"Satellite measure, maximum accuracy",9.1,Paid only after verification,2,3,-3.9,7.9
+"Satellite measure, maximum accuracy",9.1,Part paid up front,7.7,3.2,1.4,14.0
+"Satellite measure, balanced accuracy",20.2,Paid only after verification,0.8,4.2,-7.4,9.0
+"Satellite measure, balanced accuracy",20.2,Part paid up front,11.5,4.2,3.3,19.7

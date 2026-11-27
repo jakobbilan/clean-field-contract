@@ -75,9 +75,9 @@
     { view: 'north', sat: ['bm', 'viirs'], layers: ['land', 'indiaFill', 'punjabFill', 'rivers'].concat(WIDE_LINES), labels: 'north' },
     { view: 'plain', sat: ['viirs'], layers: ['land', 'indiaFill', 'rivers', 'punjabLine'].concat(WIDE_LINES), labels: 'plain', wind: true },
     { view: 'plain', sat: ['viirs'], layers: ['land', 'indiaFill', 'rivers', 'punjabFill', 'punjabLine'].concat(WIDE_LINES), labels: 'plain' },
-    { view: 'punjab', sat: ['modis'], dim: true, layers: ['land', 'indiaFill', 'pbBase', 'rivers', 'states', 'districts', 'punjabLine', 'indiaLine'], labels: 'punjab', fires: 'A', scrub: true, grat: 1 },
-    { view: 'punjab', sat: ['modis'], dim: true, layers: ['land', 'indiaFill', 'pbBase', 'rivers', 'states', 'districts', 'punjabLine', 'indiaLine'], labels: 'punjab', fires: 'B', scrub: true, grat: 1 },
-    { view: 'six', sat: ['modis'], dim: true, layers: ['land', 'indiaFill', 'pbBase', 'six', 'states', 'districts', 'sixLine', 'punjabLine', 'indiaLine'], labels: 'six', fires: 'B', grat: 0.5, inset: true },
+    { view: 'punjab', sat: ['detail', 'modis'], dim: true, layers: ['land', 'indiaFill', 'pbBase', 'rivers', 'states', 'districts', 'punjabLine', 'indiaLine'], labels: 'punjab', fires: 'A', scrub: true, grat: 1 },
+    { view: 'punjab', sat: ['detail', 'modis'], dim: true, layers: ['land', 'indiaFill', 'pbBase', 'rivers', 'states', 'districts', 'punjabLine', 'indiaLine'], labels: 'punjab', fires: 'B', scrub: true, grat: 1 },
+    { view: 'six', sat: ['detail', 'modis'], dim: true, layers: ['land', 'indiaFill', 'pbBase', 'six', 'states', 'districts', 'sixLine', 'punjabLine', 'indiaLine'], labels: 'six', fires: 'B', grat: 0.5, inset: true },
     { view: 'field', sat: ['hls'], layers: ['land', 'pbBase', 'districts'], labels: 'none', fires: 'B', grat: 0.1, focus: true, inset: true },
     { view: 'field', sat: ['hls'], layers: ['land', 'pbBase', 'districts'], labels: 'none', fires: 'B', grat: 0.1, focus: true, inset: true, photo: true }
   ];
@@ -534,11 +534,13 @@
     if (showPhoto) parts.push(assets.photo.credit);
     else {
       if (satOn) {
-        var m = assets.sat.filter(function (x) { return x.meta.group === satGroup; }).pop().meta;
+        var shown = assets.sat.filter(function (x) { return x.meta.group === satGroup; }).map(function (x) { return x.meta; }), m = shown[shown.length - 1];
         var when = m.date ? ', ' + longDate(new Date(m.date + 'T00:00:00Z')) : '';
-        parts.push(m.group === 'hls' ? 'Image: NASA HLS, ' + (m.sensor || '') + when + ', via NASA GIBS.'
+        var sensors = shown.map(function (x) { return (x.layer || '').indexOf('MODIS') === 0 ? 'MODIS on Terra' : 'VIIRS on Suomi NPP'; })
+          .filter(function (v, k, arr) { return arr.indexOf(v) === k; }).join(' and ');
+        parts.push(m.group === 'hls' ? 'Image: NASA HLS, ' + (m.sensor || '') + when + ', via NASA GIBS. Contains modified Copernicus Sentinel data.'
           : m.group === 'bm' ? 'Image: NASA Blue Marble Next Generation (MODIS composite), via NASA GIBS.'
-          : 'Image: NASA GIBS, ' + (m.group === 'modis' ? 'MODIS on Terra' : 'VIIRS on Suomi NPP') + when + '.');
+          : 'Image: NASA GIBS, ' + sensors + when + '.');
       }
       if (s.wind) parts.push(wind.measured ? 'Wind: NASA POWER, MERRA-2.' : 'Wind lines are schematic.');
       if (fireState.key) parts.push('Fires: NASA FIRMS, VIIRS on NOAA-20.');
